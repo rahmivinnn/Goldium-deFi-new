@@ -33,6 +33,18 @@ export async function getNftsForOwner(
   }
 }
 
+// Alias for backward compatibility
+export async function getNFTs(walletAddress: string): Promise<any[]> {
+  try {
+    // This is a simplified implementation
+    // In a real app, you would use the connection and convert the string to PublicKey
+    return []
+  } catch (error) {
+    console.error("Error getting NFTs:", error)
+    return []
+  }
+}
+
 // Get NFTs from the GOLD collection owned by a wallet
 export async function getGoldNftsForOwner(
   connection: Connection,

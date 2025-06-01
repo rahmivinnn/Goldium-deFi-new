@@ -22,9 +22,9 @@ export default function TokenSelector({ selectedToken, onSelectToken, otherToken
 
   const filteredTokens = AVAILABLE_TOKENS.filter(
     (token) =>
-      token.mint !== otherToken.mint &&
-      (token.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        token.symbol.toLowerCase().includes(searchQuery.toLowerCase())),
+      token?.mint !== otherToken?.mint &&
+      (token?.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        token?.symbol?.toLowerCase().includes(searchQuery.toLowerCase())),
   )
 
   return (
@@ -35,14 +35,14 @@ export default function TokenSelector({ selectedToken, onSelectToken, otherToken
         >
           <div className="relative w-6 h-6">
             <Image
-              src={selectedToken.logoURI || "/placeholder.svg"}
-              alt={selectedToken.name}
+              src={selectedToken?.logoURI || "/placeholder.svg"}
+              alt={selectedToken?.name || 'Token'}
               width={24}
               height={24}
               className="rounded-full"
             />
           </div>
-          <span className={`font-medium ${isDarkTheme ? "text-white" : "text-gray-900"}`}>{selectedToken.symbol}</span>
+          <span className={`font-medium ${isDarkTheme ? "text-white" : "text-gray-900"}`}>{selectedToken?.symbol || 'Token'}</span>
           <ChevronDown className={`h-4 w-4 ${isDarkTheme ? "text-gray-400" : "text-gray-500"}`} />
         </button>
       </DialogTrigger>
@@ -83,8 +83,8 @@ export default function TokenSelector({ selectedToken, onSelectToken, otherToken
                     />
                   </div>
                   <div className="text-left">
-                    <div className={`font-medium ${isDarkTheme ? "text-white" : "text-gray-900"}`}>{token.symbol}</div>
-                    <div className={`text-sm ${isDarkTheme ? "text-gray-400" : "text-gray-500"}`}>{token.name}</div>
+                    <div className={`font-medium ${isDarkTheme ? "text-white" : "text-gray-900"}`}>{token?.symbol || 'Token'}</div>
+                    <div className={`text-sm ${isDarkTheme ? "text-gray-400" : "text-gray-500"}`}>{token?.name || 'Unknown Token'}</div>
                   </div>
                 </button>
               ))}

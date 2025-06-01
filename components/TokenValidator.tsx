@@ -45,9 +45,9 @@ export default function TokenValidator() {
   useEffect(() => {
     // Initialize validation results
     const initialResults: TokenValidationResult[] = AVAILABLE_TOKENS.map(token => ({
-      address: token.mint,
-      symbol: token.symbol,
-      name: token.name,
+      address: token?.mint || '',
+      symbol: token?.symbol || 'Unknown',
+      name: token?.name || 'Unknown Token',
       isValid: false,
       hasActivity: false,
       isLoading: false

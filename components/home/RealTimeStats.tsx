@@ -36,6 +36,8 @@ export default function RealTimeStats() {
   const [liveMetrics, setLiveMetrics] = useState<LiveMetric[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [lastUpdate, setLastUpdate] = useState<Date>(new Date())
+  const [selectedStat, setSelectedStat] = useState<string | null>(null)
+  const [isAutoUpdate, setIsAutoUpdate] = useState(true)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const wsRef = useRef<WebSocket | null>(null)
 
@@ -43,11 +45,11 @@ export default function RealTimeStats() {
   const generateLiveData = (): LiveMetric => {
     const now = Date.now()
     const baseMetrics = liveMetrics.length > 0 ? liveMetrics[liveMetrics.length - 1] : {
-      tvl: 1250000,
-      users: 45230,
-      transactions: 1234567,
-      volume24h: 2340000,
-      apy: 12.5,
+      tvl: 1000000000,
+      users: 245230,
+      transactions: 12345678,
+      volume24h: 45600000,
+      apy: 15.8,
       goldPrice: 2.45,
       networkHealth: 99.8,
       gasPrice: 0.000005
@@ -55,10 +57,10 @@ export default function RealTimeStats() {
 
     return {
       timestamp: now,
-      tvl: baseMetrics.tvl + (Math.random() - 0.5) * 50000,
-      users: baseMetrics.users + Math.floor(Math.random() * 20),
-      transactions: baseMetrics.transactions + Math.floor(Math.random() * 100),
-      volume24h: baseMetrics.volume24h + (Math.random() - 0.5) * 100000,
+      tvl: baseMetrics.tvl + (Math.random() - 0.5) * 500000,
+      users: baseMetrics.users + Math.floor(Math.random() * 50),
+      transactions: baseMetrics.transactions + Math.floor(Math.random() * 500),
+      volume24h: baseMetrics.volume24h + (Math.random() - 0.5) * 1000000,
       apy: Math.max(8, Math.min(20, baseMetrics.apy + (Math.random() - 0.5) * 0.5)),
       goldPrice: Math.max(1, baseMetrics.goldPrice + (Math.random() - 0.5) * 0.1),
       networkHealth: Math.max(95, Math.min(100, baseMetrics.networkHealth + (Math.random() - 0.5) * 0.5)),
@@ -240,13 +242,17 @@ export default function RealTimeStats() {
     setIsLoading(false)
 
     // Start real-time updates
-    intervalRef.current = setInterval(() => {
-      setLiveMetrics(prev => {
-        const newMetric = generateLiveData()
-        const updated = [...prev, newMetric].slice(-50) // Keep last 50 data points
-        return updated
-      })
-    }, 2000) // Update every 2 seconds
+    const updateInterval = () => {
+      if (isAutoUpdate) {
+        setLiveMetrics(prev => {
+          const newMetric = generateLiveData()
+          const updated = [...prev, newMetric].slice(-50) // Keep last 50 data points
+          return updated
+        })
+      }
+    }
+    
+    intervalRef.current = setInterval(updateInterval, 2000) // Update every 2 seconds
 
     return () => {
       if (intervalRef.current) {
@@ -336,11 +342,26 @@ export default function RealTimeStats() {
                   rotateY: 5,
                   boxShadow: "0 20px 40px -10px rgba(0,0,0,0.3)"
                 }}
-                className="group"
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setSelectedStat(selectedStat === stat.id ? null : stat.id)}
+                className="group cursor-pointer"
               >
-                <Card className="bg-gradient-to-br from-gray-900/90 to-gray-800/90 border-gray-700/50 backdrop-blur-sm hover:border-yellow-500/50 transition-all duration-300 overflow-hidden relative">
+                <Card className={`bg-gradient-to-br from-gray-900/90 to-gray-800/90 border-gray-700/50 backdrop-blur-sm hover:border-yellow-500/50 transition-all duration-300 overflow-hidden relative ${
+                  selectedStat === stat.id ? 'ring-2 ring-yellow-500/50 border-yellow-500' : ''
+                }`}>
                   {/* Animated border */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 animate-pulse"></div>
+                  <div className={`absolute inset-0 bg-gradient-to-r from-transparent via-yellow-500/20 to-transparent transition-opacity duration-300 animate-pulse ${
+                    selectedStat === stat.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                  }`}></div>
+                  
+                  {/* Pulse effect for selected */}
+                  {selectedStat === stat.id && (
+                    <motion.div
+                      className="absolute inset-0 bg-yellow-500/10 rounded-lg"
+                      animate={{ opacity: [0.3, 0.6, 0.3] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                  )}
                   
                   <CardContent className="p-6 relative z-10">
                     <div className="flex items-start justify-between mb-4">
@@ -393,16 +414,56 @@ export default function RealTimeStats() {
           </AnimatePresence>
         </div>
 
-        {/* Additional Info */}
+        {/* Interactive Controls */}
         <motion.div
-          className="mt-12 text-center"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
+          className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
           viewport={{ once: true }}
         >
+          <button
+            onClick={() => setIsAutoUpdate(!isAutoUpdate)}
+            className={`px-4 py-2 rounded-lg font-medium transition-all duration-300 ${
+              isAutoUpdate 
+                ? 'bg-green-500/20 text-green-400 border border-green-500/50 hover:bg-green-500/30' 
+                : 'bg-gray-500/20 text-gray-400 border border-gray-500/50 hover:bg-gray-500/30'
+            }`}
+          >
+            {isAutoUpdate ? '🟢 Auto Update ON' : '⏸️ Auto Update OFF'}
+          </button>
+          
+          <button
+            onClick={() => {
+              const newMetric = generateLiveData()
+              setLiveMetrics(prev => [...prev.slice(-19), newMetric])
+            }}
+            className="px-4 py-2 rounded-lg font-medium bg-blue-500/20 text-blue-400 border border-blue-500/50 hover:bg-blue-500/30 transition-all duration-300"
+          >
+            🔄 Refresh Now
+          </button>
+          
+          {selectedStat && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="px-4 py-2 rounded-lg bg-yellow-500/20 text-yellow-400 border border-yellow-500/50 text-sm"
+            >
+              📊 {stats.find(s => s.id === selectedStat)?.label} selected
+            </motion.div>
+          )}
+        </motion.div>
+
+        {/* Additional Info */}
+        <motion.div
+          className="mt-8 text-center"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+          viewport={{ once: true }}
+        >
           <p className="text-sm text-gray-500">
-            Data updates every 2 seconds • Powered by Goldium Network
+            💡 Click on any stat card to highlight it • Data updates every 2 seconds • Powered by Goldium Network
           </p>
         </motion.div>
       </div>

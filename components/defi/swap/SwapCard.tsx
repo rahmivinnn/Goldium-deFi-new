@@ -67,12 +67,12 @@ export default function SwapCard() {
   // Update output amount when route changes
   useEffect(() => {
     if (selectedRoute) {
-      const outAmount = Number.parseFloat(selectedRoute.outAmount) / 10 ** outputToken.decimals
-      setOutputAmount(outAmount.toFixed(outputToken.decimals > 6 ? 6 : outputToken.decimals))
+      const outAmount = Number.parseFloat(selectedRoute.outAmount) / 10 ** (outputToken?.decimals || 9)
+      setOutputAmount(outAmount.toFixed((outputToken?.decimals || 9) > 6 ? 6 : (outputToken?.decimals || 9)))
     } else {
       setOutputAmount("")
     }
-  }, [selectedRoute, outputToken.decimals])
+  }, [selectedRoute, outputToken?.decimals])
 
   // Handle token swap
   const handleSwapTokens = useCallback(() => {
@@ -114,19 +114,19 @@ export default function SwapCard() {
   }, [publicKey, selectedRoute, executeSwap, inputToken, outputToken, refreshBalances, toast])
 
   // Calculate max amount user can swap
-  const maxAmount = balances[inputToken.symbol] || 0
+  const maxAmount = balances[inputToken?.symbol || 'SOL'] || 0
 
   // Handle max button click
   const handleMaxClick = useCallback(() => {
     if (maxAmount > 0) {
       // If SOL, leave some for gas
-      if (inputToken.symbol === "SOL") {
+      if (inputToken?.symbol === "SOL") {
         setInputAmount(Math.max(0, maxAmount - 0.01).toString())
       } else {
         setInputAmount(maxAmount.toString())
       }
     }
-  }, [maxAmount, inputToken.symbol])
+  }, [maxAmount, inputToken?.symbol])
 
   // Price impact calculation
   const priceImpact = selectedRoute ? Number.parseFloat(selectedRoute.priceImpactPct) : 0
@@ -137,8 +137,8 @@ export default function SwapCard() {
     : 0
 
   const formattedPrice = price
-    ? `1 ${inputToken.symbol} ≈ ${(price * Math.pow(10, inputToken.decimals - outputToken.decimals)).toFixed(6)} ${
-        outputToken.symbol
+    ? `1 ${inputToken?.symbol || 'Token'} ≈ ${(price * Math.pow(10, (inputToken?.decimals || 9) - (outputToken?.decimals || 9))).toFixed(6)} ${
+        outputToken?.symbol || 'Token'
       }`
     : "Loading price..."
 
@@ -252,15 +252,15 @@ export default function SwapCard() {
           <div className="flex justify-between items-center">
             <span className={`text-sm ${isDarkTheme ? "text-gray-400" : "text-gray-500"}`}>From</span>
             <span className={`text-xs ${isDarkTheme ? "text-gray-500" : "text-gray-600"}`}>
-              Balance: {balances[inputToken.symbol]?.toFixed(4) || "0"} {inputToken.symbol}
+              Balance: {balances[inputToken?.symbol || 'SOL']?.toFixed(4) || "0"} {inputToken?.symbol || 'SOL'}
             </span>
           </div>
           <div className="flex space-x-2">
             <Select
-              value={inputToken.mint}
+              value={inputToken?.mint || ''}
               onValueChange={(value) => {
-                const token = AVAILABLE_TOKENS.find((t) => t.mint === value)
-                if (token && token.mint !== outputToken.mint) setInputToken(token)
+                const token = AVAILABLE_TOKENS.find((t) => t?.mint === value)
+                if (token && token?.mint !== outputToken?.mint) setInputToken(token)
               }}
             >
               <SelectTrigger
@@ -268,29 +268,29 @@ export default function SwapCard() {
               >
                 <SelectValue>
                   <div className="flex items-center">
-                    {inputToken.logoURI && (
+                    {inputToken?.logoURI && (
                       <img
-                        src={inputToken.logoURI || "/placeholder.svg"}
-                        alt={inputToken.symbol}
+                        src={inputToken?.logoURI || "/placeholder.svg"}
+                        alt={inputToken?.symbol || 'Token'}
                         className="w-5 h-5 mr-2 rounded-full"
                       />
                     )}
-                    {inputToken.symbol}
+                    {inputToken?.symbol || 'SOL'}
                   </div>
                 </SelectValue>
               </SelectTrigger>
               <SelectContent className={isDarkTheme ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}>
-                {AVAILABLE_TOKENS.filter((t) => t.mint !== outputToken.mint).map((token) => (
-                  <SelectItem key={token.mint} value={token.mint}>
+                {AVAILABLE_TOKENS.filter((t) => t?.mint !== outputToken?.mint).map((token) => (
+                  <SelectItem key={token?.mint || Math.random()} value={token?.mint || ''}>
                     <div className="flex items-center">
-                      {token.logoURI && (
+                      {token?.logoURI && (
                         <img
-                          src={token.logoURI || "/placeholder.svg"}
-                          alt={token.symbol}
+                          src={token?.logoURI || "/placeholder.svg"}
+                          alt={token?.symbol || 'Token'}
                           className="w-5 h-5 mr-2 rounded-full"
                         />
                       )}
-                      {token.symbol}
+                      {token?.symbol || 'Token'}
                     </div>
                   </SelectItem>
                 ))}
@@ -334,15 +334,15 @@ export default function SwapCard() {
           <div className="flex justify-between items-center">
             <span className={`text-sm ${isDarkTheme ? "text-gray-400" : "text-gray-500"}`}>To</span>
             <span className={`text-xs ${isDarkTheme ? "text-gray-500" : "text-gray-600"}`}>
-              Balance: {balances[outputToken.symbol]?.toFixed(4) || "0"} {outputToken.symbol}
+              Balance: {balances[outputToken?.symbol || 'GOLD']?.toFixed(4) || "0"} {outputToken?.symbol || 'GOLD'}
             </span>
           </div>
           <div className="flex space-x-2">
             <Select
-              value={outputToken.mint}
+              value={outputToken?.mint || ''}
               onValueChange={(value) => {
-                const token = AVAILABLE_TOKENS.find((t) => t.mint === value)
-                if (token && token.mint !== inputToken.mint) setOutputToken(token)
+                const token = AVAILABLE_TOKENS.find((t) => t?.mint === value)
+                if (token && token?.mint !== inputToken?.mint) setOutputToken(token)
               }}
             >
               <SelectTrigger
@@ -350,29 +350,29 @@ export default function SwapCard() {
               >
                 <SelectValue>
                   <div className="flex items-center">
-                    {outputToken.logoURI && (
+                    {outputToken?.logoURI && (
                       <img
-                        src={outputToken.logoURI || "/placeholder.svg"}
-                        alt={outputToken.symbol}
+                        src={outputToken?.logoURI || "/placeholder.svg"}
+                        alt={outputToken?.symbol || 'Token'}
                         className="w-5 h-5 mr-2 rounded-full"
                       />
                     )}
-                    {outputToken.symbol}
+                    {outputToken?.symbol || 'GOLD'}
                   </div>
                 </SelectValue>
               </SelectTrigger>
               <SelectContent className={isDarkTheme ? "bg-gray-800 border-gray-700" : "bg-white border-gray-300"}>
-                {AVAILABLE_TOKENS.filter((t) => t.mint !== inputToken.mint).map((token) => (
-                  <SelectItem key={token.mint} value={token.mint}>
+                {AVAILABLE_TOKENS.filter((t) => t?.mint !== inputToken?.mint).map((token) => (
+                  <SelectItem key={token?.mint || Math.random()} value={token?.mint || ''}>
                     <div className="flex items-center">
-                      {token.logoURI && (
+                      {token?.logoURI && (
                         <img
-                          src={token.logoURI || "/placeholder.svg"}
-                          alt={token.symbol}
+                          src={token?.logoURI || "/placeholder.svg"}
+                          alt={token?.symbol || 'Token'}
                           className="w-5 h-5 mr-2 rounded-full"
                         />
                       )}
-                      {token.symbol}
+                      {token?.symbol || 'Token'}
                     </div>
                   </SelectItem>
                 ))}
@@ -457,7 +457,7 @@ export default function SwapCard() {
           ) : !selectedRoute ? (
             "No route found"
           ) : (
-            `Swap ${inputToken.symbol} for ${outputToken.symbol}`
+            `Swap ${inputToken?.symbol || 'Token'} for ${outputToken?.symbol || 'Token'}`
           )}
         </Button>
       </CardContent>

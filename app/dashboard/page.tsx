@@ -53,17 +53,15 @@ export default function DashboardPage() {
   ]
 
   const recentTrades = [
-    { pair: "SOL/USDC", type: "BUY", amount: "5.67 SOL", price: "$156.42", time: "2 min ago", profit: "+$23.45", status: "completed" },
-    { pair: "GOLD/USDC", type: "SELL", amount: "234.56 GOLD", price: "$1.85", time: "15 min ago", profit: "-$12.34", status: "completed" },
-    { pair: "SOL/USDC", type: "BUY", amount: "2.34 SOL", price: "$154.78", time: "1 hour ago", profit: "+$45.67", status: "completed" },
-    { pair: "BTC/USDC", type: "BUY", amount: "0.05 BTC", price: "$43,250", time: "2 hours ago", profit: "+$125.50", status: "pending" }
+    { pair: "SOL/GOLD", type: "BUY", amount: "5.67 SOL", price: "$185.50", time: "2 min ago", profit: "+$23.45", status: "completed" },
+    { pair: "SOL/GOLD", type: "SELL", amount: "234.56 GOLD", price: "$0.742", time: "15 min ago", profit: "-$12.34", status: "completed" },
+    { pair: "SOL/GOLD", type: "BUY", amount: "2.34 SOL", price: "$185.50", time: "1 hour ago", profit: "+$45.67", status: "completed" },
+    { pair: "SOL/GOLD", type: "SWAP", amount: "1250 GOLD", price: "$0.742", time: "2 hours ago", profit: "+$125.50", status: "completed" }
   ]
 
   const portfolioAllocation = [
-    { asset: "SOL", percentage: 45, value: "$5,781.29", amount: "36.98 SOL" },
-    { asset: "GOLD", percentage: 30, value: "$3,854.20", amount: "2,083.35 GOLD" },
-    { asset: "BTC", percentage: 15, value: "$1,927.10", amount: "0.0446 BTC" },
-    { asset: "USDC", percentage: 10, value: "$1,284.73", amount: "1,284.73 USDC" }
+    { asset: "SOL", percentage: 0.4, value: "$0.74", amount: "0.004 SOL" },
+    { asset: "GOLD", percentage: 99.6, value: "$742.00", amount: "1,000 GOLD" }
   ]
 
   return (
@@ -107,8 +105,8 @@ export default function DashboardPage() {
                       </div>
                       <div className="mt-4">
                         <span className={`text-sm ${
-                          stat.changeType === 'positive' ? 'text-green-400' :
-                          stat.changeType === 'negative' ? 'text-red-400' :
+                          stat.change.startsWith('+') ? 'text-green-400' :
+                          stat.change.startsWith('-') ? 'text-red-400' :
                           'text-gray-400'
                         }`}>
                           {stat.change}

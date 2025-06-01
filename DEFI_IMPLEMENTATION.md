@@ -14,7 +14,7 @@ This project now implements **REAL** DeFi functionality using actual Solana cont
 
 #### 2. Real Contract Addresses
 - **SOL Token**: `So11111111111111111111111111111111111111112` (Native Solana)
-- **USDC Token**: `EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v` (Circle USDC)
+- **GOLD Token**: `APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump` (GOLDIUM)
 - **Staking Program**: `Stake11111111111111111111111111111111111111` (Native Solana Staking)
 
 #### 3. Jupiter API Features

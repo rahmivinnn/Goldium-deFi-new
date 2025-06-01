@@ -143,7 +143,7 @@ export default function HeroSection() {
             Goldium.io
           </h1>
           <p className="text-xl md:text-2xl text-amber-100/80 mb-8">
-            Join Goldium.io for NFT trading, staking, and seamless crypto payments powered by GOLD token.
+            Experience the future of gaming and finance in one unified ecosystem. GOLDIUM combines immersive 3D worlds, thrilling 2D adventures, and real economic opportunities powered by the GOLD token.
           </p>
 
           <div className="flex flex-col md:flex-row gap-4 justify-center mb-12">

@@ -612,7 +612,11 @@ export default function InteractiveAvatarCreator() {
           <Card className="bg-gray-900/50 border-gray-800">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                {React.createElement(categories.find(c => c.key === selectedCategory)?.icon || Palette, { className: "h-5 w-5" })}
+                {(() => {
+                  const category = categories.find(c => c.key === selectedCategory)
+                  const IconComponent = category?.icon || Palette
+                  return <IconComponent className="h-5 w-5" />
+                })()}
                 {categories.find(c => c.key === selectedCategory)?.name} Options
               </CardTitle>
             </CardHeader>

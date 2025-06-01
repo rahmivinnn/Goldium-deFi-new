@@ -20,19 +20,33 @@ export default function LiquidityPoolsList({ mintAddress }: LiquidityPoolsListPr
   const isDarkTheme = theme === "dark"
 
   useEffect(() => {
-    async function fetchPools() {
-      setIsLoading(true)
-      try {
-        const poolsData = await getLiquidityPools(mintAddress || "")
-        setPools(poolsData)
-      } catch (error) {
-        console.error("Error fetching liquidity pools:", error)
-      } finally {
-        setIsLoading(false)
+    // Simulate SOL-GOLD pool data
+    const solGoldPool = {
+      id: "sol-gold-pool",
+      name: "SOL/GOLD",
+      token1Info: {
+        symbol: "SOL",
+        logoURI: "/solana-logo.png"
+      },
+      token2Info: {
+        symbol: "GOLD",
+        logoURI: "/goldium-logo.png"
+      },
+      tvl: 2500000,
+      apy: 12.5,
+      volume24h: 850000,
+      fee: 0.25,
+      reserves: {
+        token1: 10000,
+        token2: 2500000
       }
     }
-
-    fetchPools()
+    
+    setIsLoading(true)
+    setTimeout(() => {
+      setPools([solGoldPool])
+      setIsLoading(false)
+    }, 1000)
   }, [mintAddress])
 
   const togglePoolExpand = (poolId: string) => {

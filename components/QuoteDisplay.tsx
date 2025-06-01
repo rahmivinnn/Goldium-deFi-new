@@ -26,7 +26,7 @@ export default function QuoteDisplay({ quote, isLoading, toToken }: QuoteDisplay
     return <div className={`text-lg font-medium ${isDarkTheme ? "text-gray-500" : "text-gray-400"}`}>0.0</div>
   }
 
-  const formattedAmount = (Number.parseFloat(quote.outAmount) / 10 ** toToken.decimals).toFixed(6)
+  const formattedAmount = (Number.parseFloat(quote.outAmount) / 10 ** (toToken?.decimals || 9)).toFixed(6)
 
   return <div className={`text-lg font-medium ${isDarkTheme ? "text-white" : "text-gray-900"}`}>{formattedAmount}</div>
 }

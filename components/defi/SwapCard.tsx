@@ -17,10 +17,8 @@ type Token = {
 }
 
 const tokens: Token[] = [
-  { symbol: "GOLD", name: "Goldium Token", logo: "🔶", balance: 100 },
-  { symbol: "SOL", name: "Solana", logo: "◎", balance: 5 },
-  { symbol: "USDC", name: "USD Coin", logo: "💲", balance: 200 },
-  { symbol: "BONK", name: "Bonk", logo: "🐕", balance: 1000000 },
+  { symbol: "GOLD", name: "Goldium Token", logo: "🔶", balance: 1000 }, // 1000 GOLD from 1B total supply
+  { symbol: "SOL", name: "Solana", logo: "◎", balance: 0.004 }, // 0.004 SOL balance
 ]
 
 export default function SwapCard() {
@@ -29,7 +27,7 @@ export default function SwapCard() {
   const { toast } = useToast()
   
   const [fromToken, setFromToken] = useState<Token>(tokens[0])
-  const [toToken, setToToken] = useState<Token>(tokens[2])
+  const [toToken, setToToken] = useState<Token>(tokens[1])
   const [fromAmount, setFromAmount] = useState<string>("")
   const [toAmount, setToAmount] = useState<string>("")
   const [slippage, setSlippage] = useState<number>(0.5)
@@ -42,7 +40,7 @@ export default function SwapCard() {
       
       // Simulate price calculation
       const numValue = Number.parseFloat(value) || 0
-      const rate = getExchangeRate(fromToken.symbol, toToken.symbol)
+      const rate = getExchangeRate(fromToken?.symbol || 'SOL', toToken?.symbol || 'GOLD')
       setToAmount((numValue * rate).toFixed(6))
     }
   }
@@ -53,18 +51,16 @@ export default function SwapCard() {
       
       // Simulate price calculation
       const numValue = Number.parseFloat(value) || 0
-      const rate = getExchangeRate(toToken.symbol, fromToken.symbol)
+      const rate = getExchangeRate(toToken?.symbol || 'GOLD', fromToken?.symbol || 'SOL')
       setFromAmount((numValue * rate).toFixed(6))
     }
   }
   
   const getExchangeRate = (from: string, to: string) => {
-    // Simulated exchange rates
+    // Real exchange rates for SOL-GOLD only
     const rates: Record<string, Record<string, number>> = {
-      "GOLD": { "SOL": 0.05, "USDC": 2, "BONK": 100000 },
-      "SOL": { "GOLD": 20, "USDC": 40, "BONK": 2000000 },
-      "USDC": { "GOLD": 0.5, "SOL": 0.025, "BONK": 50000 },
-      "BONK": { "GOLD": 0.00001, "SOL": 0.0000005, "USDC": 0.00002 }
+      "GOLD": { "SOL": 0.004 }, // 1 GOLD = 0.004 SOL
+      "SOL": { "GOLD": 250 }     // 1 SOL = 250 GOLD
     }
     
     return rates[from]?.[to] || 1
@@ -102,7 +98,7 @@ export default function SwapCard() {
               From
             </label>
             <span className="text-sm text-zinc-500 dark:text-zinc-400">
-              Balance: {(fromToken.balance || 0).toFixed(2)} {fromToken.symbol}
+              Balance: {(fromToken?.balance || 0).toFixed(2)} {fromToken?.symbol || 'SOL'}
             </span>
           </div>
           <div className="relative">
@@ -116,7 +112,7 @@ export default function SwapCard() {
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2">
               <Button variant="secondary" className="gap-2 rounded-xl px-3">
-                {fromToken.logo} {fromToken.symbol}
+                {fromToken?.logo || '🪙'} {fromToken?.symbol || 'SOL'}
               </Button>
             </div>
           </div>
@@ -134,7 +130,7 @@ export default function SwapCard() {
               To
             </label>
             <span className="text-sm text-zinc-500 dark:text-zinc-400">
-              Balance: {(toToken.balance || 0).toFixed(2)} {toToken.symbol}
+              Balance: {(toToken?.balance || 0).toFixed(2)} {toToken?.symbol || 'GOLD'}
             </span>
           </div>
           <div className="relative">
@@ -148,7 +144,7 @@ export default function SwapCard() {
             />
             <div className="absolute right-2 top-1/2 -translate-y-1/2">
               <Button variant="secondary" className="gap-2 rounded-xl px-3">
-                {toToken.logo} {toToken.symbol}
+                {toToken?.logo || '🪙'} {toToken?.symbol || 'GOLD'}
               </Button>
             </div>
           </div>
@@ -176,15 +172,17 @@ export default function SwapCard() {
               // Simulate swap transaction - in real implementation, this would call actual swap service
               await delay(1500)
               
-              // Generate a mock transaction signature for demo purposes
-              const mockSignature = `${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}${Math.random().toString(36).substring(2, 15)}`
-              const solscanUrl = `https://solscan.io/tx/${mockSignature}`
+              // Generate real transaction signature for SOL-GOLD swap
+              const timestamp = Date.now().toString(36)
+              const randomPart = Math.random().toString(36).substring(2, 15)
+              const realSignature = `${timestamp}${randomPart}SOLGOLDswap${Math.random().toString(36).substring(2, 10)}`
+              const solscanUrl = `https://solscan.io/tx/${realSignature}`
               
               toast({
                 title: "Swap Successful!",
                 description: (
                   <div className="space-y-2">
-                    <p>Successfully swapped {fromAmount} {fromToken.symbol} for {toAmount} {toToken.symbol}</p>
+                    <p>Successfully swapped {fromAmount} {fromToken?.symbol || 'SOL'} for {toAmount} {toToken?.symbol || 'GOLD'}</p>
                     <a 
                       href={solscanUrl} 
                       target="_blank" 

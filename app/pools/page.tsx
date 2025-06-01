@@ -9,50 +9,17 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AVAILABLE_TOKENS } from "@/constants/tokens"
 
 // Sample pool data
-const POOLS = [
+const mockPools = [
   {
     id: "pool1",
     name: "SOL-GOLD",
     token1: AVAILABLE_TOKENS[0], // SOL
     token2: AVAILABLE_TOKENS[1], // GOLD
     tvl: 1250000,
-    apr: 42.5,
+    apr: 45.8,
     volume24h: 320000,
     myLiquidity: 5000,
     rewards: ["GOLD"],
-  },
-  {
-    id: "pool2",
-    name: "GOLD-USDC",
-    token1: AVAILABLE_TOKENS[1], // GOLD
-    token2: AVAILABLE_TOKENS[2], // USDC
-    tvl: 850000,
-    apr: 38.2,
-    volume24h: 180000,
-    myLiquidity: 2500,
-    rewards: ["GOLD"],
-  },
-  {
-    id: "pool3",
-    name: "SOL-USDC",
-    token1: AVAILABLE_TOKENS[0], // SOL
-    token2: AVAILABLE_TOKENS[2], // USDC
-    tvl: 3200000,
-    apr: 28.7,
-    volume24h: 950000,
-    myLiquidity: 0,
-    rewards: ["GOLD"],
-  },
-  {
-    id: "pool4",
-    name: "GOLD-BONK",
-    token1: AVAILABLE_TOKENS[1], // GOLD
-    token2: AVAILABLE_TOKENS[3], // BONK
-    tvl: 420000,
-    apr: 65.3,
-    volume24h: 125000,
-    myLiquidity: 1200,
-    rewards: ["GOLD", "BONK"],
   },
 ]
 

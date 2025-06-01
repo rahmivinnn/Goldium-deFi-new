@@ -16,42 +16,14 @@ const FARMS = [
     name: "SOL-GOLD Farm",
     token1: AVAILABLE_TOKENS[0], // SOL
     token2: AVAILABLE_TOKENS[1], // GOLD
-    tvl: 950000,
+    tvl: 1250000,
     apr: 85.2,
     rewardToken: AVAILABLE_TOKENS[1], // GOLD
     myStake: 3500,
-    pendingRewards: 125.5,
+    pendingRewards: 127.8,
     endTime: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
     totalAllocation: 500000,
     remainingAllocation: 320000,
-  },
-  {
-    id: "farm2",
-    name: "GOLD-USDC Farm",
-    token1: AVAILABLE_TOKENS[1], // GOLD
-    token2: AVAILABLE_TOKENS[2], // USDC
-    tvl: 720000,
-    apr: 68.7,
-    rewardToken: AVAILABLE_TOKENS[1], // GOLD
-    myStake: 1800,
-    pendingRewards: 42.3,
-    endTime: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000), // 45 days from now
-    totalAllocation: 300000,
-    remainingAllocation: 210000,
-  },
-  {
-    id: "farm3",
-    name: "GOLD-BONK Farm",
-    token1: AVAILABLE_TOKENS[1], // GOLD
-    token2: AVAILABLE_TOKENS[3], // BONK
-    tvl: 350000,
-    apr: 120.5,
-    rewardToken: AVAILABLE_TOKENS[1], // GOLD
-    myStake: 0,
-    pendingRewards: 0,
-    endTime: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days from now
-    totalAllocation: 250000,
-    remainingAllocation: 200000,
   },
 ]
 

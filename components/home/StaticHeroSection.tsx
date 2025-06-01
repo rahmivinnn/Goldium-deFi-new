@@ -88,7 +88,7 @@ export default function StaticHeroSection() {
           transition={{ duration: 0.8, delay: 0.5 }}
           className="text-xl md:text-2xl text-amber-100/80 text-center max-w-3xl mb-12"
         >
-          Join Goldium.io for NFT trading, staking, and seamless crypto payments powered by GOLD token.
+          Experience the future of gaming and finance in one unified ecosystem. GOLDIUM combines immersive 3D worlds, thrilling 2D adventures, and real economic opportunities powered by the GOLD token.
         </motion.p>
 
         {/* CTA Buttons */}

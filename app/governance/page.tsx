@@ -45,15 +45,15 @@ export default function GovernancePage() {
     },
     {
       id: "2",
-      title: "Add New Trading Pair: GOLD/USDC",
-      description: "Proposal to add GOLD/USDC trading pair to increase liquidity and provide more trading options for users.",
+      title: "Increase SOL-GOLD Pool Rewards",
+      description: "Proposal to increase rewards for SOL-GOLD liquidity providers to boost pool participation and trading volume.",
       status: "active",
-      votesFor: 890000,
-      votesAgainst: 120000,
-      totalVotes: 1010000,
+      votesFor: 2850000,
+      votesAgainst: 450000,
+      totalVotes: 3300000,
       endDate: "2024-02-20",
-      proposer: "Community",
-      category: "Technical"
+      proposer: "0x789...def",
+      category: "Protocol"
     },
     {
       id: "3",
@@ -102,12 +102,12 @@ export default function GovernancePage() {
   }
 
   const votingPower = connected ? (balances.GOLD || 0) : 0
-  const totalSupply = 100000000 // Mock total supply
+  const totalSupply = 1000000000 // 1B GOLD total supply
   const votingPowerPercentage = totalSupply > 0 ? (votingPower / totalSupply) * 100 : 0
 
   return (
     <PageLayout>
-      <div className="container mx-auto px-4 py-24">
+      <div className="container mx-auto max-w-7xl px-4 py-24">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-600">

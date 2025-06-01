@@ -1,11 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-// Mock base prices for demo purposes
-const BASE_PRICES = {
-  So11111111111111111111111111111111111111112: 100, // SOL
-  GoLDium1111111111111111111111111111111111111: 5.5, // GOLD
-  EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v: 1.0, // USDC
-  DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263: 0.00000125, // BONK
+// Mock price data for SOL and GOLD tokens only
+const TOKEN_BASE_PRICES = {
+  So11111111111111111111111111111111111111112: 185.50, // SOL
+  APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump: 0.742, // GOLD
 }
 
 // Generate realistic price history with trends
@@ -55,7 +53,7 @@ export async function GET(request: NextRequest) {
 
     // In a real implementation, we would fetch historical prices from an API
     // For this demo, we'll generate mock data
-    const basePrice = BASE_PRICES[mint]
+    const basePrice = TOKEN_BASE_PRICES[mint]
 
     if (!basePrice) {
       return NextResponse.json({ error: "Token not found" }, { status: 404 })

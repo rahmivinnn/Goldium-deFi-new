@@ -60,7 +60,7 @@ export default function DeFiTester() {
 
     try {
       // Test swap
-      const swapResult = await testSwap(publicKey.toString(), "GOLD", "USDC", 10)
+      const swapResult = await testSwap(publicKey.toString(), "GOLD", "SOL", 10)
       setTestResults((prev) => [...prev, { feature: "Swap", success: swapResult.success, message: swapResult.message }])
 
       // Test liquidity pool
@@ -167,7 +167,7 @@ export default function DeFiTester() {
           {Object.entries(balances).map(([token, amount]) => (
             <div key={token} className={`${isDarkTheme ? "bg-gray-800" : "bg-gray-100"} p-3 rounded-lg`}>
               <p className={`text-sm ${isDarkTheme ? "text-gray-400" : "text-gray-500"}`}>{token}</p>
-              <p className="text-lg font-bold">{amount.toFixed(token === "BONK" ? 0 : 2)}</p>
+              <p className="text-lg font-bold">{amount.toFixed(2)}</p>
             </div>
           ))}
         </div>

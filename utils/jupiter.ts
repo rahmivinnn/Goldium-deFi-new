@@ -159,88 +159,26 @@ export async function executeSwap(
 
 // Get liquidity pools
 export async function getLiquidityPools(mintAddress?: string) {
-  // This would normally fetch from an API, but for demo we'll return mock data
-  // In a real implementation, you would fetch from Raydium or Orca API
-  return [
+  // Mock liquidity pools data - Only SOL-GOLD pool
+  const pools = [
     {
       id: "pool1",
       name: "GOLD-SOL",
-      token1Info: {
+      token1: {
+        mint: "APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump",
         symbol: "GOLD",
-        logoURI: "/goldium-logo.png",
+        logoURI: "/tokens/gold.png",
       },
-      token2Info: {
+      token2: {
+        mint: "So11111111111111111111111111111111111111112",
         symbol: "SOL",
         logoURI: "/solana-logo.png",
       },
       tvl: 1250000,
-      apy: 12.5,
-      volume24h: 450000,
-      fee: 0.3,
-      reserves: {
-        token1: 500000,
-        token2: 2500,
-      },
-    },
-    {
-      id: "pool2",
-      name: "GOLD-USDC",
-      token1Info: {
-        symbol: "GOLD",
-        logoURI: "/goldium-logo.png",
-      },
-      token2Info: {
-        symbol: "USDC",
-        logoURI: "/usdc-logo.png",
-      },
-      tvl: 750000,
-      apy: 8.2,
-      volume24h: 250000,
-      fee: 0.3,
-      reserves: {
-        token1: 300000,
-        token2: 150000,
-      },
-    },
-    {
-      id: "pool3",
-      name: "SOL-USDC",
-      token1Info: {
-        symbol: "SOL",
-        logoURI: "/solana-logo.png",
-      },
-      token2Info: {
-        symbol: "USDC",
-        logoURI: "/usdc-logo.png",
-      },
-      tvl: 3200000,
-      apy: 6.8,
-      volume24h: 950000,
-      fee: 0.3,
-      reserves: {
-        token1: 16000,
-        token2: 1600000,
-      },
-    },
-    {
-      id: "pool4",
-      name: "GOLD-BONK",
-      token1Info: {
-        symbol: "GOLD",
-        logoURI: "/goldium-logo.png",
-      },
-      token2Info: {
-        symbol: "BONK",
-        logoURI: "/bonk-token-logo.png",
-      },
-      tvl: 420000,
-      apy: 18.5,
-      volume24h: 125000,
-      fee: 0.3,
-      reserves: {
-        token1: 42000,
-        token2: 33600000000,
-      },
+      volume24h: 320000,
+      apr: 42.5,
     },
   ]
+  
+  return pools
 }

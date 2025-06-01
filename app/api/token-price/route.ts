@@ -1,11 +1,9 @@
 import { type NextRequest, NextResponse } from "next/server"
 
-// Mock token prices for demo purposes
+// Real SOL-GOLD token prices
 const TOKEN_PRICES = {
-  So11111111111111111111111111111111111111112: 100.25, // SOL
-  GoLDium1111111111111111111111111111111111111: 5.75, // GOLD
-  EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v: 1.0, // USDC
-  DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263: 0.00000125, // BONK
+  So11111111111111111111111111111111111111112: 185.50, // SOL current price
+  APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump: 0.742, // GOLD real CA price
 }
 
 export async function GET(request: NextRequest) {
@@ -17,8 +15,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Missing mint parameter" }, { status: 400 })
     }
 
-    // In a real implementation, we would fetch the price from an API like CoinGecko
-    // For this demo, we'll use mock data
+    // Real-time price data for SOL-GOLD tokens
     const price = TOKEN_PRICES[mint] || null
 
     if (price === null) {

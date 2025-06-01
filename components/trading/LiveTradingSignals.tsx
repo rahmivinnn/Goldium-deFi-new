@@ -60,50 +60,18 @@ export default function LiveTradingSignals() {
   const [signals, setSignals] = useState<TradingSignal[]>([
     {
       id: '1',
-      symbol: 'SOL/USDC',
+      symbol: 'SOL/GOLD',
       type: 'BUY',
-      strength: 85,
-      confidence: 92,
+      strength: 88,
+      confidence: 94,
       timeframe: '4H',
-      price: 156.42,
-      targetPrice: 168.50,
-      stopLoss: 148.20,
-      riskReward: 1.47,
+      price: 250.13,
+      targetPrice: 268.75,
+      stopLoss: 235.20,
+      riskReward: 1.42,
       timestamp: new Date(),
-      indicators: ['RSI Oversold', 'MACD Bullish Cross', 'Volume Spike'],
-      description: 'Strong bullish momentum with RSI recovery from oversold levels',
-      status: 'active'
-    },
-    {
-      id: '2',
-      symbol: 'GOLD/USDC',
-      type: 'SELL',
-      strength: 78,
-      confidence: 85,
-      timeframe: '1H',
-      price: 1.85,
-      targetPrice: 1.72,
-      stopLoss: 1.92,
-      riskReward: 1.86,
-      timestamp: new Date(Date.now() - 300000),
-      indicators: ['Resistance Break', 'Bearish Divergence', 'High Volume'],
-      description: 'Breaking key resistance with bearish divergence pattern',
-      status: 'active'
-    },
-    {
-      id: '3',
-      symbol: 'BTC/USDC',
-      type: 'HOLD',
-      strength: 65,
-      confidence: 70,
-      timeframe: '1D',
-      price: 43250.00,
-      targetPrice: 45000.00,
-      stopLoss: 41500.00,
-      riskReward: 1.15,
-      timestamp: new Date(Date.now() - 600000),
-      indicators: ['Consolidation', 'Mixed Signals', 'Low Volume'],
-      description: 'Consolidating in range, waiting for clear direction',
+      indicators: ['RSI Recovery', 'MACD Bullish Cross', 'Volume Breakout'],
+      description: 'Strong bullish momentum with SOL gaining against GOLD',
       status: 'active'
     }
   ])
@@ -112,26 +80,18 @@ export default function LiveTradingSignals() {
     {
       symbol: 'SOL',
       sentiment: 'bullish',
-      score: 75,
-      volume: 1250000,
-      volatility: 12.5,
-      momentum: 8.3
+      score: 78,
+      volume: 1450000,
+      volatility: 11.2,
+      momentum: 9.1
     },
     {
       symbol: 'GOLD',
-      sentiment: 'bearish',
-      score: -45,
-      volume: 890000,
-      volatility: 8.7,
-      momentum: -5.2
-    },
-    {
-      symbol: 'BTC',
-      sentiment: 'neutral',
-      score: 15,
-      volume: 2100000,
-      volatility: 15.2,
-      momentum: 2.1
+      sentiment: 'bullish',
+      score: 65,
+      volume: 920000,
+      volatility: 7.8,
+      momentum: 6.4
     }
   ])
 

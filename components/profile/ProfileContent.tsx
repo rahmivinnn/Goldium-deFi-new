@@ -488,15 +488,15 @@ function RewardsInfo() {
                   <Award className="h-5 w-5 text-amber-500" />
                 </div>
                 <div>
-                  <h4 className="font-medium text-white">Refer a Friend</h4>
-                  <p className="text-sm text-gray-400">Earn 50 GOLD per referral</p>
+                  <h4 className="font-medium text-white">Loyalty Rewards</h4>
+                  <p className="text-sm text-gray-400">Earn bonus GOLD for activity</p>
                 </div>
               </div>
               <Button
                 size="sm"
                 className="bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-black"
               >
-                Get Link
+                View Rewards
               </Button>
             </div>
           </div>

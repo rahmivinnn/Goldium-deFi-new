@@ -7,7 +7,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { useWalletBalance } from "./useWalletBalance"
 import { GOLD_TOKEN } from "@/constants/tokens"
 
-// Adjusted for 1M total supply
+// Adjusted for 1B total supply
 const REWARD_RATE = 0.15 // 15% APY
 const REWARD_INTERVAL = 86400 // 1 day in seconds
 const MIN_STAKE_DURATION = 604800 // 7 days in seconds
@@ -48,7 +48,7 @@ export function useStaking() {
     const stakeDuration = now - stakeStartTime
 
     // Calculate rewards based on staked amount, duration, and APY
-    // For 1M total supply, we adjust the reward calculation
+    // For 1B total supply, we adjust the reward calculation
     const dailyRewardRate = REWARD_RATE / 365
     const daysStaked = stakeDuration / 86400
 

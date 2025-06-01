@@ -19,8 +19,8 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: "Goldium.io | Web3 Fantasy DeFi Platform",
-  description: "Join Goldium.io for NFT trading, staking, and seamless crypto payments powered by GOLD token.",
+  title: "GOLDIUM | Web3 Gaming & DeFi Universe",
+  description: "Experience the future of gaming and finance in one unified ecosystem. GOLDIUM combines immersive 3D worlds, thrilling 2D adventures, and real economic opportunities powered by the GOLD token. Own your in-game assets as NFTs, earn rewards through play-to-earn mechanics, and grow your wealth via staking, trading, and DeFi utilities. Whether you're exploring, battling, or investing— GOLDIUM lets you play, earn, and thrive on the blockchain.",
     generator: 'v0.dev'
 }
 

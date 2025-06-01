@@ -393,13 +393,7 @@ export function initializeTestEnvironment(publicKey: string): void {
     localStorage.setItem(`${publicKey}_solBalance`, "10")
   }
 
-  if (!localStorage.getItem(`${publicKey}_usdcBalance`)) {
-    localStorage.setItem(`${publicKey}_usdcBalance`, "500")
-  }
-
-  if (!localStorage.getItem(`${publicKey}_bonkBalance`)) {
-    localStorage.setItem(`${publicKey}_bonkBalance`, "1000000")
-  }
+  // Only SOL and GOLD tokens are supported
 
   // Initialize other state
   if (!localStorage.getItem(`${publicKey}_lpTokens`)) {
@@ -419,8 +413,7 @@ export function initializeTestEnvironment(publicKey: string): void {
 export function resetTestEnvironment(publicKey: string): void {
   localStorage.removeItem(`${publicKey}_goldBalance`)
   localStorage.removeItem(`${publicKey}_solBalance`)
-  localStorage.removeItem(`${publicKey}_usdcBalance`)
-  localStorage.removeItem(`${publicKey}_bonkBalance`)
+  // Only SOL and GOLD tokens are supported
   localStorage.removeItem(`${publicKey}_lpTokens`)
   localStorage.removeItem(`${publicKey}_stakedAmount`)
   localStorage.removeItem(`${publicKey}_stakeStartTime`)
@@ -436,8 +429,7 @@ export function getUserBalances(publicKey: string): Record<string, number> {
   return {
     GOLD: Number(localStorage.getItem(`${publicKey}_goldBalance`) || "0"),
     SOL: Number(localStorage.getItem(`${publicKey}_solBalance`) || "0"),
-    USDC: Number(localStorage.getItem(`${publicKey}_usdcBalance`) || "0"),
-    BONK: Number(localStorage.getItem(`${publicKey}_bonkBalance`) || "0"),
+    // Only SOL and GOLD tokens are supported
     LP: Number(localStorage.getItem(`${publicKey}_lpTokens`) || "0"),
     STAKED: Number(localStorage.getItem(`${publicKey}_stakedAmount`) || "0"),
   }

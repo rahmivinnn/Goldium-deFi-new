@@ -1,3 +1,4 @@
+'use client'
 import PageLayout from '@/components/PageLayout'
 import InteractiveAvatarCreator from '@/components/avatar/InteractiveAvatarCreator'
 

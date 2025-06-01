@@ -13,19 +13,47 @@ import type { WalletContextState } from "@solana/wallet-adapter-react"
 // Network type
 export type NetworkType = "mainnet-beta" | "devnet" | "testnet"
 
-// GOLD token mint addresses for different networks
-export const GOLD_MINT_ADDRESS = {
-  "mainnet-beta": "APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump", // GOLD token on mainnet
-  devnet: "APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump", // GOLD token on devnet
-  testnet: "APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump", // GOLD token on testnet
+// Token mint addresses for SOL and GOLD only
+export const TOKEN_MINT_ADDRESSES: Record<string, Record<NetworkType, string>> = {
+  SOL: {
+    "mainnet-beta": "So11111111111111111111111111111111111111112", // Native SOL
+    testnet: "So11111111111111111111111111111111111111112", // Native SOL
+    devnet: "So11111111111111111111111111111111111111112", // Native SOL
+  },
+  GOLD: {
+    "mainnet-beta": "APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump", // Real GOLDIUM CA
+    testnet: "APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump", // GOLDIUM testnet
+    devnet: "APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump", // GOLDIUM devnet
+  },
 }
 
-// GOLD token metadata
+// GOLDIUM mint address for different networks
+export const GOLD_MINT_ADDRESS: Record<NetworkType, string> = TOKEN_MINT_ADDRESSES.GOLD
+
 export const GOLD_TOKEN_METADATA = {
   name: "Goldium",
   symbol: "GOLD",
-  decimals: 6, // Updated to match the actual token decimals
-  totalSupply: 1_000_000, // 1 million tokens
+  decimals: 9, // GOLDIUM has 9 decimals
+  description: "Goldium - Premium digital gold token",
+  image: "/tokens/gold.png",
+}
+
+// Token metadata for all supported tokens
+export const TOKEN_METADATA: Record<string, any> = {
+  SOL: {
+    name: "Solana",
+    symbol: "SOL",
+    decimals: 9,
+    description: "Solana native token",
+    image: "/solana-logo.png",
+  },
+  GOLD: {
+    name: "Goldium",
+    symbol: "GOLD",
+    decimals: 9,
+    description: "Goldium - Premium digital gold token",
+    image: "/tokens/gold.png",
+  },
 }
 
 // Function to validate and verify token mint address
@@ -373,16 +401,29 @@ export async function transferGoldTokens(
   }
 }
 
-// Get token supply
-export async function getGoldTokenSupply(connection: Connection, network: NetworkType = "testnet"): Promise<number> {
+// Get token supply for any supported token
+export async function getTokenSupply(connection: Connection, tokenSymbol: string = "GOLD", network: NetworkType = "mainnet-beta"): Promise<number> {
   try {
-    const mintPublicKey = new PublicKey(GOLD_MINT_ADDRESS[network])
-    const mintInfo = await getMint(connection, mintPublicKey)
+    const mintAddress = TOKEN_MINT_ADDRESSES[tokenSymbol]?.[network]
+    if (!mintAddress) {
+      throw new Error(`Token ${tokenSymbol} not found for network ${network}`)
+    }
 
-    // Update any references to token supply or distribution to reflect 1M total supply
-    return Number(mintInfo.supply) / Math.pow(10, GOLD_TOKEN_METADATA.decimals)
+    const mintPublicKey = new PublicKey(mintAddress)
+    const mintInfo = await getMint(connection, mintPublicKey)
+    
+    // Convert to human readable format
+    const decimals = TOKEN_METADATA[tokenSymbol]?.decimals || 9
+    const supply = Number(mintInfo.supply) / Math.pow(10, decimals)
+    
+    return supply
   } catch (error) {
-    console.error("Error getting GOLD token supply:", error)
+    console.error(`Error getting ${tokenSymbol} supply:`, error)
     return 0
   }
+}
+
+// Legacy function for backward compatibility
+export async function getGoldTokenSupply(connection: Connection, network: NetworkType = "mainnet-beta"): Promise<number> {
+  return getTokenSupply(connection, "GOLD", network)
 }

@@ -24,51 +24,22 @@ export const SOL_TOKEN: Token = {
   logoURI: "/solana-logo.png",
 }
 
-// GOLD token with the correct mint address
+// GOLDIUM token with real Contract Address
 export const GOLD_TOKEN: Token = {
   name: "Goldium",
   symbol: "GOLD",
-  mint: "APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump", // Real GOLD token address
-  decimals: 6, // Updated to match the actual token decimals
-  logoURI: "/goldium-logo.png",
-  totalSupply: 1_000_000, // Updated from 1 billion to 1 million tokens
+  mint: "APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump", // Real GOLDIUM CA
+  decimals: 9,
+  logoURI: "/tokens/gold.png",
+  totalSupply: 1000000000 // 1B GOLD total distribution
 }
 
-// Function to get the correct GOLD token for the current network
+// Function to get the correct token for the current network
 export function getGoldTokenForNetwork(network: string): Token {
-  return {
-    ...GOLD_TOKEN,
-    mint: GOLD_MINT_ADDRESS[network as keyof typeof GOLD_MINT_ADDRESS] || GOLD_MINT_ADDRESS.devnet,
-  }
+  return GOLD_TOKEN
 }
 
-// Additional tokens that could be added in the future
-export const USDC_TOKEN: Token = {
-  name: "USD Coin",
-  symbol: "USDC",
-  mint: "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v",
-  decimals: 6,
-  logoURI: "/usdc-logo.png",
-}
-
-export const BONK_TOKEN: Token = {
-  name: "Bonk",
-  symbol: "BONK",
-  mint: "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
-  decimals: 5,
-  logoURI: "/bonk-token-logo.png",
-}
-
-// Custom token with user-provided contract address
-export const PUMP_TOKEN: Token = {
-  name: "Pump Token",
-  symbol: "PUMP",
-  mint: "PUMPkzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump", // Different mint address to avoid conflicts
-  decimals: 6,
-  logoURI: "/placeholder.svg",
-}
-
-// List of all available tokens - Only SOL and GOLD
+// Only SOL and GOLD tokens are available for swap
 export const AVAILABLE_TOKENS: Token[] = [SOL_TOKEN, GOLD_TOKEN]
 
 // Staking program ID
@@ -80,5 +51,4 @@ export const FAUCET_PROGRAM_ID = "FaucGo1dTkH8CjDXSFpZ7kVToKDnNXpKNYPfMJjJwHjR"
 // Liquidity pool IDs
 export const LIQUIDITY_POOLS = {
   GOLD_SOL: "GS1dsoPnAEuBnuXvzjVrAyJRxJhiR9Jbs3VaX7JJKnY",
-  GOLD_USDC: "GU1dcUSgMGd9Bz1QBqMrwQoogZi1kHhfzFHcPXVZmtBE",
 }

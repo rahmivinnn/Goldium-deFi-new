@@ -214,7 +214,17 @@ export function WalletContextProvider({ children }: { children: React.ReactNode 
   }, [network])
 
   // Generate RPC endpoint based on network
-  const endpoint = useMemo(() => clusterApiUrl(walletNetwork), [walletNetwork])
+  const endpoint = useMemo(() => {
+    switch (network) {
+      case "mainnet-beta":
+        return "https://api.mainnet-beta.solana.com"
+      case "testnet":
+        return "https://api.testnet.solana.com"
+      case "devnet":
+      default:
+        return "https://api.devnet.solana.com"
+    }
+  }, [network])
 
   // Initialize wallet adapters
   const wallets = useMemo(

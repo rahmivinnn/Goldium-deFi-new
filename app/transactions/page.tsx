@@ -178,7 +178,7 @@ export default function TransactionsPage() {
 
   return (
     <PageLayout>
-      <div className="container mx-auto px-4 py-24">
+      <div className="container mx-auto max-w-7xl px-4 py-24">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-4">
             <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-yellow-600">

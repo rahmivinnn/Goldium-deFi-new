@@ -6,6 +6,7 @@ import { TrendingUp, BarChart3, Activity, Target, Zap, Bell, Settings } from "lu
 import PageLayout from "@/components/PageLayout"
 import AdvancedTradingInterface from "@/components/trading/AdvancedTradingInterface"
 import LiveTradingSignals from "@/components/trading/LiveTradingSignals"
+import PumpFunInterface from "@/components/trading/PumpFunInterface"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -21,50 +22,18 @@ interface MarketData {
 }
 
 export default function TradingPage() {
-  const [selectedPair, setSelectedPair] = useState('SOL/USDC')
-  const [watchlist, setWatchlist] = useState<string[]>(['SOL/USDC', 'GOLD/USDC', 'BTC/USDC'])
-  const [activeTab, setActiveTab] = useState('trading')
+  const [selectedPair, setSelectedPair] = useState('SOL/GOLD')
+  const [watchlist, setWatchlist] = useState<string[]>(['SOL/GOLD'])
+  const [activeTab, setActiveTab] = useState('pump')
 
   const marketData: MarketData[] = [
     {
-      symbol: 'SOL/USDC',
-      price: 156.42,
-      change: 2.34,
-      changePercent: 1.52,
-      volume: 2847392,
-      marketCap: 68500000000
-    },
-    {
-      symbol: 'GOLD/USDC',
-      price: 1.85,
-      change: -0.03,
-      changePercent: -1.59,
-      volume: 1234567,
-      marketCap: 185000000
-    },
-    {
-      symbol: 'BTC/USDC',
-      price: 43250.00,
-      change: 1250.00,
-      changePercent: 2.98,
-      volume: 15678901,
-      marketCap: 850000000000
-    },
-    {
-      symbol: 'ETH/USDC',
-      price: 2650.00,
-      change: -45.50,
-      changePercent: -1.69,
-      volume: 8901234,
-      marketCap: 320000000000
-    },
-    {
-      symbol: 'AVAX/USDC',
-      price: 38.75,
-      change: 1.25,
-      changePercent: 3.33,
-      volume: 567890,
-      marketCap: 15000000000
+      symbol: 'SOL/GOLD',
+      price: 250.13,
+      change: 12.45,
+      changePercent: 5.24,
+      volume: 125000000,
+      marketCap: 850000000
     }
   ]
 
@@ -135,10 +104,10 @@ export default function TradingPage() {
             transition={{ duration: 0.6 }}
           >
             {[
-              { label: "Total Portfolio", value: "$12,847.32", change: "+2.34%", icon: Target },
-              { label: "24h P&L", value: "+$234.56", change: "+1.89%", icon: TrendingUp },
-              { label: "Active Orders", value: "3", change: "+1", icon: Activity },
-              { label: "Win Rate", value: "68.5%", change: "+2.1%", icon: BarChart3 }
+              { label: "Total Portfolio", value: "$5,288.65", change: "+6.2%", icon: Target },
+              { label: "24h P&L", value: "+$312.45", change: "+6.28%", icon: TrendingUp },
+              { label: "Active Positions", value: "2", change: "SOL+GOLD", icon: Activity },
+              { label: "Win Rate", value: "85.2%", change: "+4.3%", icon: BarChart3 }
             ].map((stat, index) => (
               <motion.div
                 key={stat.label}
@@ -172,9 +141,12 @@ export default function TradingPage() {
 
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="bg-gray-800 border border-gray-700">
+              <TabsTrigger value="pump" className="data-[state=active]:bg-yellow-500 data-[state=active]:text-black">
+                🥇 Pump Style
+              </TabsTrigger>
               <TabsTrigger value="trading" className="data-[state=active]:bg-yellow-500 data-[state=active]:text-black">
                 <BarChart3 className="h-4 w-4 mr-2" />
-                Trading Interface
+                Advanced Trading
               </TabsTrigger>
               <TabsTrigger value="signals" className="data-[state=active]:bg-yellow-500 data-[state=active]:text-black">
                 <Zap className="h-4 w-4 mr-2" />
@@ -189,6 +161,16 @@ export default function TradingPage() {
                 Portfolio
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="pump" className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+              >
+                <PumpFunInterface />
+              </motion.div>
+            </TabsContent>
 
             <TabsContent value="trading" className="space-y-6">
               <motion.div
@@ -312,25 +294,25 @@ export default function TradingPage() {
                   <CardContent>
                     <div className="space-y-4">
                       <div>
-                        <div className="text-3xl font-bold text-white">$12,847.32</div>
+                        <div className="text-3xl font-bold text-white">$5,288.65</div>
                         <div className="flex items-center gap-2 text-green-400">
                           <TrendingUp className="h-4 w-4" />
-                          <span className="font-semibold">+$234.12 (1.86%)</span>
+                          <span className="font-semibold">+$312.45 (6.28%)</span>
                         </div>
                       </div>
                       
                       <div className="space-y-2">
                         <div className="flex justify-between">
-                          <span className="text-gray-400">Available Balance</span>
-                          <span className="text-white font-semibold">$8,234.56</span>
+                          <span className="text-gray-400">SOL Holdings</span>
+                          <span className="text-white font-semibold">$4,546.65</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">In Orders</span>
-                          <span className="text-white font-semibold">$2,456.78</span>
+                          <span className="text-gray-400">GOLD Holdings</span>
+                          <span className="text-white font-semibold">$742.00</span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-gray-400">P&L Today</span>
-                          <span className="text-green-400 font-semibold">+$234.12</span>
+                          <span className="text-gray-400">Total P&L</span>
+                          <span className="text-green-400 font-semibold">+$374.00</span>
                         </div>
                       </div>
                     </div>
@@ -345,9 +327,8 @@ export default function TradingPage() {
                   <CardContent>
                     <div className="space-y-3">
                       {[
-                        { symbol: 'SOL', amount: 45.67, value: 7145.23, change: 2.34 },
-                        { symbol: 'GOLD', amount: 2847.32, value: 5267.89, change: -1.23 },
-                        { symbol: 'USDC', amount: 434.20, value: 434.20, change: 0 }
+                        { symbol: 'SOL', amount: 25.5, value: 4546.65, change: 4.95 },
+                        { symbol: 'GOLD', amount: 1000, value: 742.00, change: 6.45 }
                       ].map((holding) => (
                         <div key={holding.symbol} className="flex items-center justify-between p-3 bg-gray-800/50 rounded-lg">
                           <div className="flex items-center gap-3">

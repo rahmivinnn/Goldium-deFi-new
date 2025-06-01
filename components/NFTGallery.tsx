@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Image from "next/image"
 import { useWallet } from "@solana/wallet-adapter-react"
-import { getNFTs } from "@/utils/jupiter"
+import { getNFTs } from "@/services/nftService"
 import { Loader2, Search, Grid3X3, List } from "lucide-react"
 import { useTheme } from "@/components/WalletContextProvider"
 import { Button } from "@/components/ui/button"
