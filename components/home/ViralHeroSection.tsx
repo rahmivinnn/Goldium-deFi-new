@@ -377,7 +377,7 @@ export default function ViralHeroSection() {
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-300">Circulating Supply</span>
-                      <span className="text-green-400 font-bold">847M GOLD</span>
+                      <span className="text-green-400 font-bold">847K GOLD</span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-gray-300">Contract Address</span>

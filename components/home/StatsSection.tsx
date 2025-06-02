@@ -5,7 +5,7 @@ export default function StatsSection() {
   const stats = [
     { value: "$1.0M", label: "Total Value Locked" },
     { value: "45K+", label: "Active Users" },
-    { value: "1.2M", label: "Transactions" },
+    { value: "950K", label: "Transactions" },
     { value: "99.9%", label: "Uptime" },
   ]
 

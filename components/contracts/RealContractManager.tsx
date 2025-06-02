@@ -76,21 +76,21 @@ const DEFI_PROTOCOLS = {
     pool: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
     oracle: '0x54586bE62E3c3580375aE3723C145253060Ca0C2',
     tvl: '$6.8B',
-    volume24h: '$890M'
+    volume24h: '$890K'
   },
   compound: {
     name: 'Compound V3',
     comptroller: '0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B',
     cUSDC: '0x39AA39c021dfbaE8faC545936693aC917d5E7563',
     tvl: '$2.1B',
-    volume24h: '$450M'
+    volume24h: '$450K'
   },
   curve: {
     name: 'Curve Finance',
     registry: '0x90E00ACe148ca3b23Ac1bC8C240C2a7Dd9c2d7f5',
     factory: '0xB9fC157394Af804a3578134A6585C0dc9cc990d4',
     tvl: '$3.5B',
-    volume24h: '$680M'
+    volume24h: '$680K'
   }
 }
 

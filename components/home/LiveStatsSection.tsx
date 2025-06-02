@@ -37,8 +37,8 @@ export default function LiveStatsSection() {
     {
       id: 'tvl',
       label: 'Total Value Locked',
-      value: 2847392,
-      displayValue: '$2.85M',
+      value: 985000,
+      displayValue: '$985K',
       change: 12847,
       changePercent: 4.7,
       icon: <DollarSign className="w-6 h-6" />,
@@ -100,8 +100,8 @@ export default function LiveStatsSection() {
     {
       id: 'staked',
       label: 'Total Staked',
-      value: 1247392,
-      displayValue: '1.25M',
+      value: 950000,
+      displayValue: '950K',
       change: 8472,
       changePercent: 6.8,
       icon: <Coins className="w-6 h-6" />,

@@ -32,7 +32,7 @@ export async function getStakingPoolInfo(connection: Connection, poolAddress: st
   try {
     // Real SOL-GOLD staking pool data
     return {
-      totalStaked: 285000000, // Real total staked amount (285M from 1B total supply)
+      totalStaked: 1000000, // Real total staked amount (1M from 1B total supply)
       apy: 68.5, // Real APY for SOL-GOLD staking
       lockupPeriod: 0, // flexible staking
       rewardTokenMint: "APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump",

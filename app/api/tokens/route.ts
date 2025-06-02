@@ -73,7 +73,7 @@ export async function GET(request: NextRequest) {
       const price = token.symbol === "SOL" ? 100 : token.symbol === "GOLD" ? 0.05 : Math.random() * 10
       const change24h = Math.random() * 20 - 10 // -10% to +10%
       const volume24h = Math.random() * 10000000
-      const marketCap = price * (Math.random() * 100000000) // Max 100M tokens
+      const marketCap = price * (Math.random() * 1000000) // Max 1M tokens
 
       return {
         ...token,

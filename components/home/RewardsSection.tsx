@@ -362,7 +362,7 @@ export default function RewardsSection() {
           <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
             <CardContent className="p-6 text-center">
               <Coins className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">847M</div>
+              <div className="text-2xl font-bold text-white">847K</div>
               <div className="text-sm text-gray-400">Total Staked</div>
             </CardContent>
           </Card>
@@ -386,7 +386,7 @@ export default function RewardsSection() {
           <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">
             <CardContent className="p-6 text-center">
               <Award className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-              <div className="text-2xl font-bold text-white">2.4M</div>
+              <div className="text-2xl font-bold text-white">950K</div>
               <div className="text-sm text-gray-400">Rewards Paid</div>
             </CardContent>
           </Card>

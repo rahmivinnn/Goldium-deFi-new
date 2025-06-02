@@ -106,7 +106,7 @@ export default function InteractiveFeatures() {
       stats: [
         { label: "Total APY", value: "up to 45%" },
         { label: "Supported Chains", value: "8" },
-        { label: "Trading Volume", value: "$2.4M" }
+        { label: "Trading Volume", value: "$950K" }
       ],
       color: 'text-green-400',
       gradient: 'from-green-400 to-emerald-600',
@@ -202,7 +202,7 @@ export default function InteractiveFeatures() {
       ],
       stats: [
         { label: "Security Score", value: "99.9%" },
-        { label: "Insurance", value: "$10M" },
+        { label: "Insurance", value: "$1M" },
         { label: "Uptime", value: "99.99%" }
       ],
       color: 'text-emerald-400',
