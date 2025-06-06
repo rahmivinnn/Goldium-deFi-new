@@ -221,7 +221,7 @@ export default function HeroSection() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
+          transition={{ duration: 0 }}
           className="mt-8"
         >
           <div className="inline-block bg-black/60 backdrop-blur-sm border border-amber-500/20 rounded-lg p-4">

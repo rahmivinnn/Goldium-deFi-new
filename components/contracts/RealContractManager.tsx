@@ -21,28 +21,76 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
 
-// Real Contract Addresses - Only GOLD/SOL tokens
+// Real Contract Addresses from major DeFi protocols
 const REAL_CONTRACTS = {
-  solana: {
-    GOLD: 'APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump',
-    SOL: 'So11111111111111111111111111111111111111112'
+  ethereum: {
+    USDC: '0xA0b86a33E6441b8435b662303c0f218C8F8c0c0e',
+    USDT: '0xdAC17F958D2ee523a2206206994597C13D831ec7',
+    WETH: '0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2',
+    UNI: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
+    AAVE: '0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9',
+    COMP: '0xc00e94Cb662C3520282E6f5717214004A7f26888',
+    MKR: '0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2',
+    LINK: '0x514910771AF9Ca656af840dff83E8264EcF986CA',
+    CRV: '0xD533a949740bb3306d119CC777fa900bA034cd52',
+    SUSHI: '0x6B3595068778DD592e39A122f4f5a5cF09C90fE2'
+  },
+  polygon: {
+    USDC: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+    USDT: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+    WMATIC: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
+    AAVE: '0xD6DF932A45C0f255f85145f286eA0b292B21C90B',
+    QUICK: '0x831753DD7087CaC61aB5644b308642cc1c33Dc13'
+  },
+  bsc: {
+    USDT: '0x55d398326f99059fF775485246999027B3197955',
+    BUSD: '0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56',
+    WBNB: '0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c',
+    CAKE: '0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82',
+    VENUS: '0xcF6BB5389c92Bdda8a3747Ddb454cB7a64626C63'
+  },
+  arbitrum: {
+    USDC: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+    USDT: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+    WETH: '0x82aF49447D8a07e3bd95BD0d56f35241523fBab1',
+    ARB: '0x912CE59144191C1204E64559FE8253a0e49E6548'
+  },
+  avalanche: {
+    USDC: '0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E',
+    USDT: '0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7',
+    WAVAX: '0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7',
+    JOE: '0x6e84a6216eA6dACC71eE8E6b0a5B7322EEbC0fDd'
   }
 }
 
 const DEFI_PROTOCOLS = {
-  goldium: {
-    name: 'Goldium DeFi',
-    router: 'APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump',
-    factory: 'So11111111111111111111111111111111111111112',
-    tvl: '$1M',
+  uniswap: {
+    name: 'Uniswap V3',
+    router: '0xE592427A0AEce92De3Edee1F18E0157C05861564',
+    factory: '0x1F98431c8aD98523631AE4a59f267346ea31F984',
+    tvl: '$4.2B',
+    volume24h: '$1.8B'
+  },
+  aave: {
+    name: 'Aave V3',
+    pool: '0x87870Bca3F3fD6335C3F4ce8392D69350B4fA4E2',
+    oracle: '0x54586bE62E3c3580375aE3723C145253060Ca0C2',
+    tvl: '$6.8B',
     volume24h: '$890K'
   },
-  jupiter: {
-    name: 'Jupiter Aggregator',
-    router: 'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4',
-    factory: 'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4',
-    tvl: '$950K',
+  compound: {
+    name: 'Compound V3',
+    comptroller: '0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B',
+    cUSDC: '0x39AA39c021dfbaE8faC545936693aC917d5E7563',
+    tvl: '$2.1B',
     volume24h: '$450K'
+  },
+  curve: {
+    name: 'Curve Finance',
+    registry: '0x90E00ACe148ca3b23Ac1bC8C240C2a7Dd9c2d7f5',
+    factory: '0xB9fC157394Af804a3578134A6585C0dc9cc990d4',
+    tvl: '$3.5B',
+    volume24h: '$680K'
   }
 }
 
@@ -57,7 +105,7 @@ interface ContractInfo {
 }
 
 export default function RealContractManager() {
-  const [selectedNetwork, setSelectedNetwork] = useState('solana')
+  const [selectedNetwork, setSelectedNetwork] = useState('ethereum')
   const [contractData, setContractData] = useState<Record<string, ContractInfo>>({})
   const [protocolStats, setProtocolStats] = useState(DEFI_PROTOCOLS)
   const [isLoading, setIsLoading] = useState(false)
@@ -92,8 +140,25 @@ export default function RealContractManager() {
 
   const getTokenName = (symbol: string): string => {
     const names: Record<string, string> = {
-      GOLD: 'Goldium Token',
-      SOL: 'Solana'
+      USDC: 'USD Coin',
+      USDT: 'Tether USD',
+      WETH: 'Wrapped Ether',
+      UNI: 'Uniswap',
+      AAVE: 'Aave Token',
+      COMP: 'Compound',
+      MKR: 'Maker',
+      LINK: 'Chainlink',
+      CRV: 'Curve DAO Token',
+      SUSHI: 'SushiSwap',
+      WMATIC: 'Wrapped Matic',
+      QUICK: 'QuickSwap',
+      BUSD: 'Binance USD',
+      WBNB: 'Wrapped BNB',
+      CAKE: 'PancakeSwap',
+      VENUS: 'Venus',
+      ARB: 'Arbitrum',
+      WAVAX: 'Wrapped AVAX',
+      JOE: 'TraderJoe'
     }
     return names[symbol] || symbol
   }
@@ -116,9 +181,13 @@ export default function RealContractManager() {
     })
   }
 
-  const openSolscan = (address: string) => {
+  const openEtherscan = (address: string) => {
     const explorers = {
-      solana: 'https://solscan.io/token/'
+      ethereum: 'https://etherscan.io/address/',
+      polygon: 'https://polygonscan.com/address/',
+      bsc: 'https://bscscan.com/address/',
+      arbitrum: 'https://arbiscan.io/address/',
+      avalanche: 'https://snowtrace.io/address/'
     }
     const baseUrl = explorers[selectedNetwork as keyof typeof explorers]
     window.open(`${baseUrl}${address}`, '_blank')
@@ -193,7 +262,7 @@ export default function RealContractManager() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      onClick={() => openSolscan(info.address)}
+                      onClick={() => openEtherscan(info.address)}
                       className="h-6 w-6 p-0"
                     >
                       <ExternalLink className="h-3 w-3" />

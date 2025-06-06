@@ -5,6 +5,7 @@ import {
   createAssociatedTokenAccountInstruction,
   createTransferInstruction,
   getMint,
+  getAccount,
   getOrCreateAssociatedTokenAccount,
   transfer,
 } from "@solana/spl-token"
@@ -174,38 +175,34 @@ export async function getTokenBalance(
   mintAddress: string,
 ): Promise<number> {
   try {
-    // Get the associated token account
-    const tokenAccount = await getAssociatedTokenAddress(new PublicKey(mintAddress), walletPublicKey)
+    console.log(`🔍 Getting token balance for mint: ${mintAddress}`);
+    console.log(`👤 Wallet: ${walletPublicKey.toString()}`);
+    
+    // Get the associated token account address
+    const tokenAccount = await getAssociatedTokenAddress(
+      new PublicKey(mintAddress), 
+      walletPublicKey
+    )
+    
+    console.log(`🏦 Token account address: ${tokenAccount.toString()}`);
 
-    // Get the token account info
+    // Try to get the token account using getAccount from @solana/spl-token
     try {
-      const tokenAccountInfo = await connection.getAccountInfo(tokenAccount)
-
-      if (!tokenAccountInfo) {
-        return 0
-      }
-
-      // Parse the token account data
-      const accountData = tokenAccountInfo.data
-      if (accountData.length < 64) {
-        return 0
-      }
-
-      // Extract the amount (8 bytes starting at offset 64)
-      const amountBytes = accountData.slice(64, 72)
-      const amount = Buffer.from(amountBytes).readBigUInt64LE()
-
+      const account = await getAccount(connection, tokenAccount)
+      
       // Get the mint info to determine decimals
       const mintInfo = await getMint(connection, new PublicKey(mintAddress))
-      const balance = Number(amount) / Math.pow(10, mintInfo.decimals)
-
+      const balance = Number(account.amount) / Math.pow(10, mintInfo.decimals)
+      
+      console.log(`✅ Token balance found: ${balance} (raw: ${account.amount}, decimals: ${mintInfo.decimals})`);
       return balance
     } catch (accountError) {
-      // Token account doesn't exist
+      console.log(`ℹ️ Token account doesn't exist for ${mintAddress}, balance is 0`);
+      // Token account doesn't exist, which means balance is 0
       return 0
     }
   } catch (error) {
-    console.error("Error getting token balance:", error)
+    console.error(`❌ Error getting token balance for ${mintAddress}:`, error)
     return 0
   }
 }
@@ -280,18 +277,42 @@ export async function transferTokens(
       throw new Error("Wallet not connected")
     }
 
+    // Validate inputs
+    if (amount <= 0) {
+      throw new Error("Amount must be greater than 0")
+    }
+
     const mint = new PublicKey(mintAddress)
     
-    // Get or create sender's token account
+    // Get mint info to verify decimals and validate token
+    let mintInfo
+    try {
+      mintInfo = await getMint(connection, mint)
+    } catch (error) {
+      throw new Error("Invalid token mint address or token does not exist")
+    }
+    
+    // Use actual decimals from mint info
+    const actualDecimals = mintInfo.decimals
+    
+    // Get sender's associated token account
     const senderTokenAccount = await getAssociatedTokenAddress(mint, wallet.publicKey)
     
-    // Get or create recipient's token account
+    // Get recipient's associated token account
     const recipientTokenAccount = await getAssociatedTokenAddress(mint, recipient)
     
-    // Check if sender has the token account
+    // Check if sender has the token account and sufficient balance
     const senderAccountInfo = await connection.getAccountInfo(senderTokenAccount)
     if (!senderAccountInfo) {
-      throw new Error("You don't have a token account for this token")
+      throw new Error("You don't have a token account for this token. Please ensure you have some tokens first.")
+    }
+    
+    // Get sender's token balance
+    const senderBalance = await connection.getTokenAccountBalance(senderTokenAccount)
+    const senderBalanceAmount = parseFloat(senderBalance.value.amount) / Math.pow(10, actualDecimals)
+    
+    if (senderBalanceAmount < amount) {
+      throw new Error(`Insufficient balance. You have ${senderBalanceAmount.toFixed(actualDecimals)} tokens, but trying to send ${amount}`)
     }
     
     // Create transaction
@@ -300,6 +321,7 @@ export async function transferTokens(
     // Check if recipient token account exists, if not create it
     const recipientAccountInfo = await connection.getAccountInfo(recipientTokenAccount)
     if (!recipientAccountInfo) {
+      console.log("Creating associated token account for recipient...")
       transaction.add(
         createAssociatedTokenAccountInstruction(
           wallet.publicKey, // payer
@@ -310,8 +332,10 @@ export async function transferTokens(
       )
     }
     
+    // Calculate transfer amount with proper decimals
+    const transferAmount = Math.floor(amount * Math.pow(10, actualDecimals))
+    
     // Add transfer instruction
-    const transferAmount = Math.floor(amount * Math.pow(10, decimals))
     transaction.add(
       createTransferInstruction(
         senderTokenAccount, // from
@@ -321,21 +345,184 @@ export async function transferTokens(
       )
     )
     
-    // Get recent blockhash
-    const { blockhash } = await connection.getLatestBlockhash()
+    // Get recent blockhash with commitment level
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed')
     transaction.recentBlockhash = blockhash
     transaction.feePayer = wallet.publicKey
     
-    // Sign and send transaction
+    console.log("Signing transaction...")
+    // Sign transaction
     const signedTransaction = await wallet.signTransaction(transaction)
-    const signature = await connection.sendRawTransaction(signedTransaction.serialize())
     
-    // Confirm transaction
-    await connection.confirmTransaction(signature)
+    console.log("Sending transaction...")
+    // Send transaction with proper options
+    const signature = await connection.sendRawTransaction(
+      signedTransaction.serialize(),
+      {
+        skipPreflight: false,
+        preflightCommitment: 'confirmed',
+        maxRetries: 3
+      }
+    )
     
+    console.log("Transaction sent, signature:", signature)
+    console.log("Confirming transaction...")
+    
+    // Confirm transaction with timeout
+    const confirmation = await connection.confirmTransaction(
+      {
+        signature,
+        blockhash,
+        lastValidBlockHeight
+      },
+      'confirmed'
+    )
+    
+    if (confirmation.value.err) {
+      throw new Error(`Transaction failed: ${confirmation.value.err.toString()}`)
+    }
+    
+    console.log("Transaction confirmed successfully")
     return signature
+    
   } catch (error) {
     console.error("Error transferring tokens:", error)
+    
+    // Provide more specific error messages
+    if (error instanceof Error) {
+      if (error.message.includes('insufficient funds')) {
+        throw new Error("Insufficient SOL for transaction fees. Please ensure you have at least 0.01 SOL for fees.")
+      }
+      if (error.message.includes('Invalid public key')) {
+        throw new Error("Invalid recipient address format")
+      }
+      if (error.message.includes('failed to send transaction')) {
+        throw new Error("Network error. Please check your connection and try again.")
+      }
+      throw error
+    }
+    
+    throw new Error("An unexpected error occurred during the transfer")
+  }
+}
+
+// Enhanced function specifically for GOLD token transfers
+export async function transferGoldToken(
+  connection: Connection,
+  wallet: WalletContextState,
+  recipientAddress: string,
+  amount: number
+): Promise<string> {
+  try {
+    // Validate recipient address
+    let recipient: PublicKey
+    try {
+      recipient = new PublicKey(recipientAddress)
+    } catch {
+      throw new Error("Invalid recipient address format")
+    }
+    
+    // Use the GOLD token mint address from constants
+    const GOLD_MINT = "APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump"
+    
+    return await transferTokens(
+      connection,
+      wallet,
+      GOLD_MINT,
+      recipient,
+      amount,
+      9 // GOLD token has 9 decimals
+    )
+  } catch (error) {
+    console.error("Error transferring GOLD tokens:", error)
+    throw error
+  }
+}
+
+// Enhanced SOL transfer function
+export async function transferSOL(
+  connection: Connection,
+  wallet: WalletContextState,
+  recipientAddress: string,
+  amount: number
+): Promise<string> {
+  try {
+    if (!wallet.publicKey || !wallet.signTransaction) {
+      throw new Error("Wallet not connected")
+    }
+
+    if (amount <= 0) {
+      throw new Error("Amount must be greater than 0")
+    }
+
+    // Validate recipient address
+    let recipient: PublicKey
+    try {
+      recipient = new PublicKey(recipientAddress)
+    } catch {
+      throw new Error("Invalid recipient address format")
+    }
+
+    // Check sender's SOL balance
+    const balance = await connection.getBalance(wallet.publicKey)
+    const balanceInSOL = balance / LAMPORTS_PER_SOL
+    const totalNeeded = amount + 0.000005 // Add transaction fee
+
+    if (balanceInSOL < totalNeeded) {
+      throw new Error(`Insufficient SOL balance. You have ${balanceInSOL.toFixed(6)} SOL, but need ${totalNeeded.toFixed(6)} SOL (including fees)`)
+    }
+
+    // Create transfer transaction
+    const transaction = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: wallet.publicKey,
+        toPubkey: recipient,
+        lamports: Math.floor(amount * LAMPORTS_PER_SOL),
+      })
+    )
+
+    // Get recent blockhash
+    const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash('confirmed')
+    transaction.recentBlockhash = blockhash
+    transaction.feePayer = wallet.publicKey
+
+    console.log("Signing SOL transfer transaction...")
+    // Sign transaction
+    const signedTransaction = await wallet.signTransaction(transaction)
+
+    console.log("Sending SOL transfer transaction...")
+    // Send transaction
+    const signature = await connection.sendRawTransaction(
+      signedTransaction.serialize(),
+      {
+        skipPreflight: false,
+        preflightCommitment: 'confirmed',
+        maxRetries: 3
+      }
+    )
+
+    console.log("SOL transfer sent, signature:", signature)
+    console.log("Confirming SOL transfer...")
+
+    // Confirm transaction
+    const confirmation = await connection.confirmTransaction(
+      {
+        signature,
+        blockhash,
+        lastValidBlockHeight
+      },
+      'confirmed'
+    )
+
+    if (confirmation.value.err) {
+      throw new Error(`SOL transfer failed: ${confirmation.value.err.toString()}`)
+    }
+
+    console.log("SOL transfer confirmed successfully")
+    return signature
+
+  } catch (error) {
+    console.error("Error transferring SOL:", error)
     throw error
   }
 }

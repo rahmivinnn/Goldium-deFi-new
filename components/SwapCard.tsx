@@ -89,9 +89,12 @@ export default function SwapCard() {
 
     // Check if tokens are properly defined
     if (!fromToken?.mint || !toToken?.mint) {
+      console.log('Token validation failed:', { fromToken, toToken })
       setError("Token information not available")
       return
     }
+
+    console.log('Fetching quote for:', { fromToken: fromToken.symbol, toToken: toToken.symbol, amount: inputAmount })
 
     setIsLoading(true)
     setError("")

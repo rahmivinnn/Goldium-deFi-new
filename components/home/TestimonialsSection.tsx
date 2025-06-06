@@ -186,7 +186,7 @@ export default function TestimonialsSection() {
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            transition={{ duration: 0 }}
             className="text-4xl md:text-5xl font-bold mb-6"
           >
             What Our <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">Community</span> Says
@@ -195,7 +195,7 @@ export default function TestimonialsSection() {
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0 }}
             className="text-xl text-gray-400 max-w-3xl mx-auto"
           >
             Real testimonials from real users earning real rewards on Goldium
@@ -206,7 +206,7 @@ export default function TestimonialsSection() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
+          transition={{ duration: 0 }}
           className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16"
         >
           <Card className="bg-gray-900/50 border-gray-800 backdrop-blur-sm">

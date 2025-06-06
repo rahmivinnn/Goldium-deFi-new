@@ -45,18 +45,31 @@ declare global {
 export function isWalletInstalled(walletName: string): boolean {
   if (typeof window === "undefined") return false
 
+  let isInstalled = false
+  
   switch (walletName.toLowerCase()) {
     case "phantom":
-      return !!window.solana?.isPhantom
+      isInstalled = !!window.solana?.isPhantom
+      console.log('Phantom detection:', {
+        windowSolana: !!window.solana,
+        isPhantom: window.solana?.isPhantom,
+        installed: isInstalled
+      })
+      break
     case "solflare":
-      return !!window.solflare
+      isInstalled = !!window.solflare
+      break
     case "metamask":
-      return !!window.ethereum?.isMetaMask
+      isInstalled = !!window.ethereum?.isMetaMask
+      break
     case "backpack":
-      return !!window.backpack
+      isInstalled = !!window.backpack
+      break
     default:
-      return false
+      isInstalled = false
   }
+  
+  return isInstalled
 }
 
 /**

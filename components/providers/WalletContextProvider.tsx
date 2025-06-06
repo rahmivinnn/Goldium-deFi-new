@@ -10,7 +10,7 @@ import {
   useWallet as useSolanaWallet,
 } from "@solana/wallet-adapter-react"
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui"
-import { PhantomWalletAdapter, SolflareWalletAdapter, TorusWalletAdapter } from "@solana/wallet-adapter-wallets"
+import { PhantomWalletAdapter, SolflareWalletAdapter } from "@solana/wallet-adapter-wallets"
 import { useToast } from "@/components/ui/use-toast"
 import { useNetwork } from "@/components/providers/NetworkContextProvider"
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base"
@@ -196,9 +196,10 @@ interface WalletContextProviderProps {
   network?: "devnet" | "testnet" | "mainnet-beta"
 }
 
-export function WalletContextProvider({ children }: { children: React.ReactNode }) {
+export function WalletContextProvider({ children }: { children: ReactNode }) {
   const { network } = useNetwork()
   const [isConnecting, setIsConnecting] = useState(false)
+  const { toast } = useToast()
 
   // Set network to WalletAdapterNetwork format
   const walletNetwork = useMemo(() => {
@@ -228,7 +229,7 @@ export function WalletContextProvider({ children }: { children: React.ReactNode 
 
   // Initialize wallet adapters
   const wallets = useMemo(
-    () => [new PhantomWalletAdapter(), new SolflareWalletAdapter(), new TorusWalletAdapter()],
+    () => [new PhantomWalletAdapter(), new SolflareWalletAdapter()],
     [walletNetwork],
   )
 
@@ -241,7 +242,33 @@ export function WalletContextProvider({ children }: { children: React.ReactNode 
 
   return (
     <ConnectionProvider endpoint={endpoint}>
-      <WalletProvider wallets={wallets} autoConnect>
+      <WalletProvider 
+        wallets={wallets} 
+        autoConnect={false}
+        onError={(error) => {
+          console.error("Wallet Provider Error:", error)
+          // Handle specific wallet errors
+          if (error.name === 'WalletNotReadyError') {
+            toast({
+              title: "Wallet Not Ready",
+              description: "Please make sure your wallet extension is installed and unlocked.",
+              variant: "destructive",
+            })
+          } else if (error.name === 'WalletConnectionError') {
+            toast({
+              title: "Connection Failed",
+              description: "Failed to connect to wallet. Please try again.",
+              variant: "destructive",
+            })
+          } else {
+            toast({
+              title: "Wallet Error",
+              description: error.message || "An unexpected wallet error occurred.",
+              variant: "destructive",
+            })
+          }
+        }}
+      >
         <WalletModalProvider value={value}>{children}</WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>
@@ -312,9 +339,29 @@ export const useWalletBalance = () => {
     setError(null)
 
     try {
+      // Fetch SOL balance
       const solBalance = (await connection.getBalance(publicKey)) / 10 ** 9
-      setBalances((prev) => ({ ...prev, SOL: solBalance }))
-
+      
+      // Fetch GOLD token balance
+      let goldBalance = 0
+      try {
+        const { getAssociatedTokenAddress } = await import('@solana/spl-token')
+        const { PublicKey } = await import('@solana/web3.js')
+        
+        const GOLD_MINT = new PublicKey("APkBg8kzMBpVKxvgrw67vkd5KuGWqSu2GVb19eK4pump")
+        const goldTokenAccount = await getAssociatedTokenAddress(GOLD_MINT, publicKey)
+        
+        const goldAccountInfo = await connection.getAccountInfo(goldTokenAccount)
+        if (goldAccountInfo) {
+          const goldTokenBalance = await connection.getTokenAccountBalance(goldTokenAccount)
+          goldBalance = parseFloat(goldTokenBalance.value.amount) / Math.pow(10, goldTokenBalance.value.decimals)
+        }
+      } catch (goldError) {
+        console.log("No GOLD token account found or error fetching GOLD balance:", goldError)
+        goldBalance = 0
+      }
+      
+      setBalances({ SOL: solBalance, GOLD: goldBalance })
       setIsLoading(false)
     } catch (error: any) {
       console.error("Failed to fetch balances", error)
@@ -322,6 +369,17 @@ export const useWalletBalance = () => {
       setIsLoading(false)
     }
   }, [connection, publicKey, connected])
+
+  const deductBalance = useCallback((token: string, amount: number) => {
+    setBalances(prev => ({
+      ...prev,
+      [token]: Math.max(0, (prev[token] || 0) - amount)
+    }))
+  }, [])
+
+  const refreshBalances = useCallback(() => {
+    return fetchBalances()
+  }, [fetchBalances])
 
   useEffect(() => {
     if (publicKey && connected) {
@@ -333,6 +391,7 @@ export const useWalletBalance = () => {
     balances,
     isLoading,
     error,
-    refreshBalances: fetchBalances,
+    refreshBalances,
+    deductBalance,
   }
 }

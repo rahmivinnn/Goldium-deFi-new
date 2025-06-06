@@ -43,6 +43,13 @@ export function WalletConnect() {
     if (balance === undefined || balance === null || isNaN(balance)) {
       return "0.00"
     }
+    
+    // For very small balances, show more decimal places to avoid showing 0.0000
+    if (balance > 0 && balance < Math.pow(10, -decimals)) {
+      // Show up to 8 decimal places for very small balances
+      return balance.toFixed(8)
+    }
+    
     return balance.toFixed(decimals)
   }
 
@@ -114,15 +121,18 @@ export function WalletConnect() {
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-400">SOL Balance</span>
-                    <motion.span
-                      className="font-medium text-white"
-                      key={isLoading ? "loading-sol" : `sol-${solBalance}`}
-                      initial={{ opacity: 0.8, scale: 0.95 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {isLoading ? "..." : formatBalance(solBalance)}
-                    </motion.span>
+                    <AnimatePresence mode="wait">
+                      <motion.span
+                        className="font-medium text-white"
+                        key={isLoading ? "loading-sol" : `sol-${solBalance}`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {isLoading || solBalance === undefined ? "..." : solBalance.toFixed(6)}
+                      </motion.span>
+                    </AnimatePresence>
                   </div>
 
                   <div className="flex justify-between items-center">

@@ -66,16 +66,25 @@ export function useWalletBalance() {
         
         const balanceInLamports = await connection.getBalance(publicKey)
         console.log("💰 Raw balance in lamports:", balanceInLamports)
+        console.log("💰 Balance type:", typeof balanceInLamports)
+        console.log("💰 Balance is number:", typeof balanceInLamports === 'number')
+        console.log("💰 Balance is bigint:", typeof balanceInLamports === 'bigint')
+        
+        // Handle both number and bigint types
+        const lamportsValue = typeof balanceInLamports === 'bigint' ? Number(balanceInLamports) : balanceInLamports
+        console.log("💰 Converted lamports value:", lamportsValue)
         
         // Convert lamports to SOL using LAMPORTS_PER_SOL constant
-        solBalanceValue = balanceInLamports / LAMPORTS_PER_SOL
+        solBalanceValue = lamportsValue / LAMPORTS_PER_SOL
         setSolBalance(solBalanceValue)
         console.log("✅ SOL Balance converted:", solBalanceValue, "SOL")
         console.log("🔢 LAMPORTS_PER_SOL:", LAMPORTS_PER_SOL)
+        console.log("🧮 Calculation:", lamportsValue, "/", LAMPORTS_PER_SOL, "=", solBalanceValue)
         
         if (solBalanceValue === 0) {
           console.log("⚠️ Balance is 0 - this might be normal for a new wallet or you might be on the wrong network")
           console.log("🌐 Current network:", network)
+          console.log("💡 If you're testing, try switching to devnet and using the faucet")
         }
       } catch (solError) {
         console.error("❌ Failed to fetch SOL balance:", solError)
@@ -195,8 +204,64 @@ export function useWalletBalance() {
     updateTokenBalance(tokenSymbol, newBalance)
   }, [publicKey, balances, updateTokenBalance])
 
+  // Function to request SOL airdrop for testing (devnet/testnet only)
+  const requestAirdrop = useCallback(async (amount: number = 1) => {
+    if (!publicKey || !connected || !connection) {
+      toast({
+        title: "Wallet not connected",
+        description: "Please connect your wallet first",
+        variant: "destructive",
+      })
+      return false
+    }
+
+    if (network === "mainnet-beta") {
+      toast({
+        title: "Airdrop not available",
+        description: "Airdrop is only available on devnet and testnet",
+        variant: "destructive",
+      })
+      return false
+    }
+
+    try {
+      setIsLoading(true)
+      console.log(`🪂 Requesting ${amount} SOL airdrop for ${publicKey.toString()}`)
+      
+      const signature = await connection.requestAirdrop(
+        publicKey,
+        amount * LAMPORTS_PER_SOL
+      )
+      
+      console.log(`✅ Airdrop signature: ${signature}`)
+      
+      // Wait for confirmation
+      await connection.confirmTransaction(signature)
+      
+      toast({
+        title: "Airdrop successful!",
+        description: `Received ${amount} SOL`,
+      })
+      
+      // Refresh balances after airdrop
+      await refreshBalances()
+      
+      return true
+    } catch (error) {
+      console.error("Airdrop failed:", error)
+      toast({
+        title: "Airdrop failed",
+        description: error instanceof Error ? error.message : "Unknown error",
+        variant: "destructive",
+      })
+      return false
+    } finally {
+      setIsLoading(false)
+    }
+  }, [publicKey, connected, connection, network, toast, refreshBalances])
+
   return {
-    solBalance: solBalance ?? 0, // Provide default value of 0 if undefined
+    solBalance, // Return actual value (undefined when not loaded, number when loaded)
     goldBalance: balances[GOLD_TOKEN.symbol] ?? 0, // Legacy support
     balances, // New balances object
     isLoading,
@@ -204,6 +269,7 @@ export function useWalletBalance() {
     refreshBalances,
     updateTokenBalance,
     deductBalance,
+    requestAirdrop, // New airdrop function
   }
 }
 

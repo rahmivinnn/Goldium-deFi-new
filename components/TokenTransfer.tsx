@@ -12,7 +12,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { AVAILABLE_TOKENS } from "@/constants/tokens"
 import { useWalletBalance } from "@/hooks/useWalletBalance"
 import { useTheme } from "@/components/providers/WalletContextProvider"
-import { transferTokens } from "@/services/tokenService"
+import { transferTokens, transferGoldToken, transferSOL } from "@/services/tokenService"
 import { motion, AnimatePresence } from "framer-motion"
 import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
@@ -47,12 +47,33 @@ interface SavedAddress {
 }
 
 export default function TokenTransfer() {
-  const { connected, publicKey, signTransaction } = useWallet()
+  const { connected, publicKey, signTransaction, wallet } = useWallet()
   const { connection } = useConnection()
   const { toast } = useToast()
   const { theme } = useTheme()
-  const { balances, refreshBalances, deductBalance } = useWalletBalance()
+  const { solBalance, balances, refreshBalances, deductBalance } = useWalletBalance()
   const isDarkTheme = theme === "dark"
+
+  // Debug wallet connection status and auto-retry
+  useEffect(() => {
+    console.log('TokenTransfer - Wallet Status:', {
+      connected,
+      publicKey: publicKey?.toString(),
+      wallet: wallet?.adapter?.name,
+      walletReady: wallet?.readyState
+    })
+    
+    // Auto-retry connection if wallet is installed but not connected
+    if (!connected && wallet && wallet.readyState === 'Installed') {
+      console.log('Attempting auto-reconnect...')
+      const timer = setTimeout(() => {
+        if (wallet.adapter.connect) {
+          wallet.adapter.connect().catch(console.error)
+        }
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [connected, publicKey, wallet])
 
   const [selectedToken, setSelectedToken] = useState('SOL')
   const [recipientAddress, setRecipientAddress] = useState("")
@@ -72,8 +93,23 @@ export default function TokenTransfer() {
   // Get available tokens - all supported tokens
   const availableTokens = AVAILABLE_TOKENS
 
-  // Get token balance
-  const tokenBalance = balances[selectedToken] || 0
+  // Get token balance - use solBalance for SOL, balances for other tokens
+  // Handle undefined solBalance (not loaded yet) vs 0 (actually zero balance)
+  const tokenBalance = selectedToken === 'SOL' 
+    ? (solBalance || 0) 
+    : (balances[selectedToken] || 0)
+  
+  // Debug logging for token balance
+  useEffect(() => {
+    console.log('TokenTransfer - Balance Debug:', {
+      selectedToken,
+      solBalance,
+      balances,
+      tokenBalance,
+      connected,
+      publicKey: publicKey?.toString()
+    })
+  }, [selectedToken, solBalance, balances, tokenBalance, connected, publicKey])
 
   // Load saved addresses from localStorage
   useEffect(() => {
@@ -196,10 +232,21 @@ export default function TokenTransfer() {
       return
     }
 
-    if (Number(amount) > tokenBalance) {
+    // Check balance based on token type
+    const currentBalance = selectedToken === 'SOL' ? solBalance : (balances[selectedToken] || 0)
+    if (currentBalance === undefined) {
+      toast({
+        title: "Balance loading",
+        description: "Please wait for balance to load",
+        variant: "destructive",
+      })
+      return
+    }
+    
+    if (Number(amount) > currentBalance) {
       toast({
         title: "Insufficient balance",
-        description: `You only have ${tokenBalance.toFixed(6)} ${selectedToken}`,
+        description: `You only have ${currentBalance.toFixed(6)} ${selectedToken}`,
         variant: "destructive",
       })
       return
@@ -219,22 +266,53 @@ export default function TokenTransfer() {
 
       let signature: string
       
-      // Handle different token types
+      // Handle different token types with enhanced transfer functions
       if (selectedToken === 'SOL') {
-        // For SOL transfers, simulate the transfer
-        signature = `sol_demo_tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        // Use enhanced SOL transfer function
+        signature = await transferSOL(
+          connection,
+          { publicKey, signTransaction },
+          recipientAddress,
+          Number(amount)
+        )
         
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1500))
+        // Deduct balance from sender
+        deductBalance(selectedToken, Number(amount))
+      } else if (selectedToken === 'GOLD') {
+        // Use enhanced GOLD token transfer function
+        signature = await transferGoldToken(
+          connection,
+          { publicKey, signTransaction },
+          recipientAddress,
+          Number(amount)
+        )
         
         // Deduct balance from sender
         deductBalance(selectedToken, Number(amount))
       } else {
-        // For token transfers
-        signature = `demo_tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        // For other tokens - use general transfer function
+        const tokenData = selectedTokenData
+        if (!tokenData) {
+          throw new Error(`Token ${selectedToken} not found`)
+        }
         
-        // Simulate network delay
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        // Validate recipient address
+        let recipientPubkey: PublicKey
+        try {
+          recipientPubkey = new PublicKey(recipientAddress)
+        } catch {
+          throw new Error("Invalid recipient address format")
+        }
+        
+        // Use enhanced token transfer function
+        signature = await transferTokens(
+          connection,
+          { publicKey, signTransaction },
+          tokenData.mint,
+          recipientPubkey,
+          Number(amount),
+          tokenData.decimals
+        )
         
         // Deduct balance from sender
         deductBalance(selectedToken, Number(amount))
@@ -285,10 +363,13 @@ export default function TokenTransfer() {
   }
 
   const handleMaxAmount = () => {
+    // Get current balance based on token type
+    const currentBalance = selectedToken === 'SOL' ? (solBalance || 0) : (balances[selectedToken] || 0)
+    
     // Reserve some SOL for transaction fees
     const maxAmount = selectedToken === 'SOL' 
-      ? Math.max(0, tokenBalance - 0.01) 
-      : tokenBalance
+      ? Math.max(0, currentBalance - 0.01) 
+      : currentBalance
     setAmount(maxAmount.toString())
   }
 
@@ -314,7 +395,10 @@ export default function TokenTransfer() {
     }
   }
 
-  if (!connected) {
+  // Check if wallet is truly connected (both connected flag and publicKey exist)
+  const isWalletReady = connected && publicKey && wallet?.readyState === 'Installed'
+  
+  if (!isWalletReady) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -326,11 +410,45 @@ export default function TokenTransfer() {
             <div className="flex flex-col items-center text-center">
               <Shield className={`h-12 w-12 mb-4 ${isDarkTheme ? "text-gray-400" : "text-gray-500"}`} />
               <p className={`text-lg font-medium mb-4 ${isDarkTheme ? "text-gray-300" : "text-gray-700"}`}>
-                Connect your wallet to transfer tokens
+                {!connected ? "Connect your wallet to transfer tokens" : "Wallet not ready"}
               </p>
-              <p className={`text-sm ${isDarkTheme ? "text-gray-400" : "text-gray-500"}`}>
-                You need to connect your wallet to send tokens.
-              </p>
+              {!connected ? (
+                <div className="space-y-3">
+                  <p className={`text-sm ${isDarkTheme ? "text-gray-400" : "text-gray-500"}`}>
+                    You need to connect your wallet to send tokens.
+                  </p>
+                  <div className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800">
+                    <p className="text-sm text-blue-700 dark:text-blue-300 font-medium mb-2">
+                      💡 Menggunakan Phantom?
+                    </p>
+                    <p className="text-xs text-blue-600 dark:text-blue-400">
+                      Pastikan Anda menggunakan <strong>ekstensi browser Phantom</strong>, bukan aplikasi mobile. 
+                      Jika belum terinstall, download dari{' '}
+                      <a 
+                        href="https://phantom.app/download" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="underline hover:text-blue-800 dark:hover:text-blue-200"
+                      >
+                        phantom.app
+                      </a>
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <p className={`text-sm ${isDarkTheme ? "text-gray-400" : "text-gray-500"}`}>
+                  Please ensure your wallet is properly connected and unlocked.
+                </p>
+              )}
+              {connected && !publicKey && (
+                <Button 
+                  onClick={() => window.location.reload()} 
+                  className="mt-4"
+                  variant="outline"
+                >
+                  Refresh Page
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -609,7 +727,8 @@ export default function TokenTransfer() {
                 !isValidAddress ||
                 !amount ||
                 Number(amount) <= 0 ||
-                Number(amount) > tokenBalance
+                (selectedToken === 'SOL' && solBalance !== undefined && Number(amount) > solBalance) ||
+                (selectedToken !== 'SOL' && Number(amount) > (balances[selectedToken] || 0))
               }
               className="w-full bg-gradient-to-r from-gold to-yellow-400 hover:from-gold/90 hover:to-yellow-400/90 text-black font-semibold"
             >

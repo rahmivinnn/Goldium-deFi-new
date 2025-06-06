@@ -41,11 +41,29 @@ export function NetworkContextProvider({ children }: NetworkContextProviderProps
         ? WalletAdapterNetwork.Testnet
         : WalletAdapterNetwork.Devnet
 
-  // Get endpoint URL for the selected network
-  const endpoint = clusterApiUrl(walletAdapterNetwork)
+  // Get endpoint URL for the selected network with reliable RPC endpoints
+  const getEndpoint = (network: NetworkType) => {
+    switch (network) {
+      case "mainnet-beta":
+        // Use official Solana RPC endpoint for real transactions
+        return "https://api.mainnet-beta.solana.com"
+      case "testnet":
+        return clusterApiUrl(WalletAdapterNetwork.Testnet)
+      case "devnet":
+        return clusterApiUrl(WalletAdapterNetwork.Devnet)
+      default:
+        return "https://api.mainnet-beta.solana.com"
+    }
+  }
 
-  // Create connection to the Solana cluster
-  const connection = new Connection(endpoint, "confirmed")
+  const endpoint = getEndpoint(network)
+
+  // Create connection to the Solana cluster with better configuration
+  const connection = new Connection(endpoint, {
+    commitment: "confirmed",
+    confirmTransactionInitialTimeout: 60000,
+    disableRetryOnRateLimit: false,
+  })
 
   // Handle network change
   const handleNetworkChange = (newNetwork: NetworkType) => {

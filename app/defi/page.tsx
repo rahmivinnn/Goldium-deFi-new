@@ -5,6 +5,7 @@ import SwapCard from '@/components/SwapCard'
 import TokenTransfer from '@/components/TokenTransfer'
 import StakingInterface from '@/components/StakingInterface'
 import LiquidityPoolsList from '@/components/LiquidityPoolsList'
+import NetworkSelector from '@/components/NetworkSelector'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
@@ -16,12 +17,20 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useWallet } from '@solana/wallet-adapter-react'
 import { useWalletBalance } from '@/hooks/useWalletBalance'
 import { useConnection } from '@solana/wallet-adapter-react'
+import { useSearchParams } from 'next/navigation'
 import { GOLD_TOKEN, SOL_TOKEN } from '@/constants/tokens'
+import { useNetwork } from '@/components/providers/NetworkContextProvider'
 
 export default function DeFiPage() {
   const { connected, publicKey } = useWallet()
   const { connection } = useConnection()
-  const { solBalance, balances, isLoading: balanceLoading, refreshBalances } = useWalletBalance()
+  const { network } = useNetwork()
+  const { solBalance, balances, isLoading: balanceLoading, refreshBalances, requestAirdrop } = useWalletBalance()
+  const searchParams = useSearchParams()
+  
+  // Get tab from URL params, default to 'swap'
+  const defaultTab = searchParams.get('tab') || 'swap'
+  const [activeTab, setActiveTab] = useState(defaultTab)
   
   // Real-time network data
   const [networkData, setNetworkData] = useState({
@@ -33,6 +42,12 @@ export default function DeFiPage() {
   })
 
   const [isLoading, setIsLoading] = useState(true)
+
+  // Update active tab when URL params change
+  useEffect(() => {
+    const tabFromUrl = searchParams.get('tab') || 'swap'
+    setActiveTab(tabFromUrl)
+  }, [searchParams])
 
   // Fetch real network data
   useEffect(() => {
@@ -72,6 +87,15 @@ export default function DeFiPage() {
   }
 
   const formatBalance = (balance: number) => {
+    if (balance === undefined || balance === null) return "0.0000"
+    
+    // For very small balances, show more decimal places to avoid showing 0.0000
+    if (balance > 0 && balance < 0.0001) {
+      // Show up to 8 decimal places for very small balances
+      return balance.toFixed(8)
+    }
+    
+    // For larger balances, use 4 decimal places
     return balance.toFixed(4)
   }
 
@@ -110,8 +134,13 @@ export default function DeFiPage() {
                 <div className="text-center">
                   <p className="text-sm text-gray-400">SOL Balance</p>
                   <p className="text-xl font-bold text-blue-400">
-                    {balanceLoading ? '...' : formatBalance(solBalance)} SOL
-                  </p>
+                      {solBalance !== undefined ? solBalance.toFixed(6) : 'Loading...'} SOL
+                    </p>
+                  {!balanceLoading && solBalance !== undefined && solBalance === 0 && network === 'mainnet-beta' && (
+                    <p className="text-xs text-amber-400 mt-1">
+                      💡 Switch to Devnet for testing with free SOL
+                    </p>
+                  )}
                 </div>
                 <div className="text-center">
                   <p className="text-sm text-gray-400">GOLD Balance</p>
@@ -119,15 +148,29 @@ export default function DeFiPage() {
                     {balanceLoading ? '...' : formatBalance(balances[GOLD_TOKEN.symbol] || 0)} GOLD
                   </p>
                 </div>
-                <Button 
-                  onClick={refreshBalances} 
-                  variant="outline" 
-                  size="sm"
-                  disabled={balanceLoading}
-                >
-                  <RefreshCw className={`h-4 w-4 mr-2 ${balanceLoading ? 'animate-spin' : ''}`} />
-                  Refresh
-                </Button>
+                <div className="flex gap-2">
+                  <NetworkSelector />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={refreshBalances}
+                    disabled={balanceLoading}
+                    className="flex items-center gap-2"
+                  >
+                    <RefreshCw className={`h-4 w-4 ${balanceLoading ? 'animate-spin' : ''}`} />
+                    Refresh
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => requestAirdrop(1)}
+                    disabled={balanceLoading}
+                    className="flex items-center gap-2 text-blue-400 border-blue-400 hover:bg-blue-400/10"
+                  >
+                    <Droplets className="h-4 w-4" />
+                    Get SOL
+                  </Button>
+                </div>
               </div>
             </div>
           </motion.div>
@@ -139,9 +182,12 @@ export default function DeFiPage() {
           >
             <AlertTriangle className="h-8 w-8 text-orange-400 mx-auto mb-2" />
             <h3 className="font-semibold text-orange-400 mb-1">Wallet Not Connected</h3>
-            <p className="text-sm text-gray-400">
+            <p className="text-sm text-gray-400 mb-4">
               Please connect your wallet to access DeFi features and view your balances
             </p>
+            <div className="flex justify-center">
+              <NetworkSelector />
+            </div>
           </motion.div>
         )}
 
@@ -190,7 +236,7 @@ export default function DeFiPage() {
                   <div>
                     <p className="text-sm text-gray-400">SOL Balance</p>
                     <p className="text-2xl font-bold text-blue-400">
-                      {connected ? formatBalance(solBalance) : '0.0000'}
+                      {connected ? (solBalance !== undefined ? solBalance.toFixed(6) : 'Loading...') : '0.000000'}
                     </p>
                   </div>
                   <img src="/solana-logo.png" alt="SOL" className="h-8 w-8" />
@@ -260,7 +306,7 @@ export default function DeFiPage() {
         </div>
 
         {/* DeFi Features Tabs */}
-        <Tabs defaultValue="swap" className="w-full">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="swap" className="flex items-center gap-2">
               <ArrowRightLeft className="h-4 w-4" />
