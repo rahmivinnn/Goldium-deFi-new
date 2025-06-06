@@ -8,11 +8,45 @@ interface ErrorLogContext {
   userId?: string
 }
 
+interface ErrorLog {
+  id: string
+  timestamp: string
+  severity: ErrorSeverity
+  component: string
+  action: string
+  message: string
+  stack?: string
+  data?: Record<string, any>
+  userId?: string
+}
+
+// In-memory error log storage (in production, use proper logging service)
+let errorLogs: ErrorLog[] = []
+
 /**
  * Logs application errors with context
  */
 export function logAppError(error: Error, context: ErrorLogContext = {}): void {
   const { component = "unknown", action = "unknown", data = {}, severity = "medium", userId = "anonymous" } = context
+
+  const errorLog: ErrorLog = {
+    id: Math.random().toString(36).substr(2, 9),
+    timestamp: new Date().toISOString(),
+    severity,
+    component,
+    action,
+    message: error.message,
+    stack: error.stack,
+    data,
+    userId,
+  }
+
+  errorLogs.push(errorLog)
+
+  // Keep only last 100 logs to prevent memory issues
+  if (errorLogs.length > 100) {
+    errorLogs = errorLogs.slice(-100)
+  }
 
   // In a real app, you might send this to a logging service
   console.error(`[${severity.toUpperCase()}] Error in ${component} during ${action}:`, error.message, {
@@ -58,6 +92,27 @@ export function formatErrorForUser(error: Error | string): string {
 }
 
 /**
+ * Gets all error logs
+ */
+export function getErrorLogs(): ErrorLog[] {
+  return [...errorLogs]
+}
+
+/**
+ * Clears all error logs
+ */
+export function clearErrorLogs(): void {
+  errorLogs = []
+}
+
+/**
+ * Gets error logs by severity
+ */
+export function getErrorLogsBySeverity(severity: ErrorSeverity): ErrorLog[] {
+  return errorLogs.filter(log => log.severity === severity)
+}
+
+/**
  * Creates a safe error handler that won't crash the app
  */
 export function createSafeErrorHandler(
@@ -79,3 +134,6 @@ export function createSafeErrorHandler(
     }
   }
 }
+
+// Export ErrorSeverity type for use in other files
+export type { ErrorSeverity, ErrorLog }
