@@ -41,7 +41,8 @@ export function NetworkContextProvider({ children, defaultNetwork = "mainnet-bet
   const getRpcUrl = useCallback((network: NetworkType): string => {
     switch (network) {
       case "mainnet-beta":
-        return "https://api.mainnet-beta.solana.com"
+        // Use free public RPC endpoints for mainnet
+        return "https://api.mainnet-beta.solana.com" // Official Solana RPC
       case "testnet":
         return "https://api.testnet.solana.com"
       case "devnet":
@@ -52,7 +53,12 @@ export function NetworkContextProvider({ children, defaultNetwork = "mainnet-bet
 
   // Create a connection to the Solana network
   const connection = useMemo(() => {
-    return new Connection(getRpcUrl(network), "confirmed")
+    const rpcUrl = getRpcUrl(network)
+    console.log(`🌐 Creating connection to ${network} at ${rpcUrl}`)
+    return new Connection(rpcUrl, {
+      commitment: "confirmed",
+      confirmTransactionInitialTimeout: 60000, // 60 seconds
+    })
   }, [network, getRpcUrl])
 
   // Set the network and update the connection

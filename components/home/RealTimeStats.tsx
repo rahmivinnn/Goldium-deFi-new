@@ -397,7 +397,7 @@ export default function RealTimeStats() {
                         }`}
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.3, delay: 0.1 }}
+                        transition={{ duration: 0 }}
                       >
                         {stat.trend !== 'stable' && (
                           <span className="font-semibold">
@@ -419,7 +419,7 @@ export default function RealTimeStats() {
           className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
+          transition={{ duration: 0 }}
           viewport={{ once: true }}
         >
           <button
@@ -459,7 +459,7 @@ export default function RealTimeStats() {
           className="mt-8 text-center"
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+          transition={{ duration: 0 }}
           viewport={{ once: true }}
         >
           <p className="text-sm text-gray-500">

@@ -13,6 +13,14 @@ export function truncateAddress(address: string, startLength = 6, endLength = 4)
 
 export function formatBalance(balance: number | undefined, decimals = 2): string {
   if (balance === undefined) return "0"
+  
+  // For very small balances, show more decimal places to avoid showing 0.00
+  if (balance > 0 && balance < 0.01) {
+    // Show up to 6 decimal places for small balances
+    return balance.toFixed(6)
+  }
+  
+  // For larger balances, use the specified decimal places
   return balance.toFixed(decimals)
 }
 

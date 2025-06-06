@@ -50,7 +50,7 @@ export default function FeaturesSection() {
             className="text-lg text-gray-300 max-w-2xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.1 }}
+            transition={{ duration: 0 }}
             viewport={{ once: true }}
           >
             Explore the cutting-edge capabilities of the Goldium platform

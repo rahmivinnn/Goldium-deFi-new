@@ -206,8 +206,18 @@ export const WalletContextProvider: FC<WalletContextProviderProps> = ({ children
   const { endpoint, walletAdapterNetwork } = useNetwork()
   const { toast } = useToast()
 
-  // Initialize wallet adapters
-  const wallets = useMemo(() => [new PhantomWalletAdapter(), new SolflareWalletAdapter()], [walletAdapterNetwork])
+  // Initialize wallet adapters with proper configuration
+  const wallets = useMemo(() => {
+    try {
+      return [
+        new PhantomWalletAdapter(),
+        new SolflareWalletAdapter()
+      ]
+    } catch (error) {
+      console.error('Error initializing wallet adapters:', error)
+      return []
+    }
+  }, [])
 
   // Handle wallet connection events
   const onWalletConnect = useCallback(() => {
@@ -233,11 +243,23 @@ export const WalletContextProvider: FC<WalletContextProviderProps> = ({ children
           <ConnectionProvider endpoint={endpoint}>
             <WalletProvider
               wallets={wallets}
-              autoConnect={false}
+              autoConnect={true}
               onError={(error) => {
                 console.error("Wallet Provider Error:", error)
-                // Only show toast for non-rejection errors
-                if (!error.message.includes("rejected") && !error.message.includes("User rejected")) {
+                // Handle specific wallet errors
+                if (error.name === 'WalletNotReadyError') {
+                  toast({
+                    title: "Wallet Not Ready",
+                    description: "Please make sure your wallet extension is installed and unlocked.",
+                    variant: "destructive",
+                  })
+                } else if (error.name === 'WalletConnectionError') {
+                  toast({
+                    title: "Connection Failed",
+                    description: "Failed to connect to wallet. Please try again.",
+                    variant: "destructive",
+                  })
+                } else if (!error.message.includes("rejected") && !error.message.includes("User rejected")) {
                   toast({
                     title: "Wallet Error",
                     description: error.message,

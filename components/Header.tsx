@@ -71,12 +71,16 @@ export default function Header() {
 
   // Format balance display
   const formatBalance = useCallback((balance: number) => {
-    if (balance === 0) return '0'
-    if (balance < 0.001) return '<0.001'
-    if (balance < 1) return balance.toFixed(3)
-    if (balance < 1000) return balance.toFixed(2)
-    if (balance < 1000000) return `${(balance / 1000).toFixed(1)}K`
-    return `${(balance / 1000000).toFixed(1)}M`
+    if (balance === undefined || balance === null) return "0.0000"
+    
+    // For very small balances, show more decimal places to avoid showing 0.0000
+    if (balance > 0 && balance < 0.0001) {
+      // Show up to 8 decimal places for very small balances
+      return balance.toFixed(8)
+    }
+    
+    // For larger balances, use 4 decimal places
+    return balance.toFixed(4)
   }, [])
 
   // Truncate address
@@ -90,8 +94,13 @@ export default function Header() {
   }, [theme])
 
   // Memoized header classes
-  const headerClasses = useMemo(() => 
-    `${theme === "dark" ? "bg-black/90" : "bg-white/90"} backdrop-blur-md border-b ${theme === "dark" ? "border-gold/20" : "border-gold/30"} sticky top-0 z-50`,
+  const headerClasses = useMemo(
+    () =>
+      `fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md border-b mt-0 ${
+        theme === "dark"
+          ? "bg-gray-900/90 border-gray-800"
+          : "bg-white/90 border-gray-200"
+      }`,
     [theme]
   )
 
@@ -228,7 +237,7 @@ export default function Header() {
                           <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>SOL</span>
                         </div>
                         <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                          {formatBalance(solBalance)}
+                          {solBalance !== undefined ? solBalance.toFixed(6) : 'Loading...'}
                         </span>
                       </div>
 
@@ -407,7 +416,7 @@ export default function Header() {
                             <span className={`text-sm ${theme === 'dark' ? 'text-gray-300' : 'text-gray-700'}`}>SOL</span>
                           </div>
                           <span className={`text-sm font-semibold ${theme === 'dark' ? 'text-white' : 'text-gray-900'}`}>
-                            {formatBalance(solBalance)}
+                            {solBalance !== undefined ? solBalance.toFixed(6) : 'Loading...'}
                           </span>
                         </div>
 
